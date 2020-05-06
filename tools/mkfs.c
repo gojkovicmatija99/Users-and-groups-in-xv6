@@ -36,6 +36,7 @@ uint rootino;
 uint homeino;
 uint binino;
 uint devino;
+uint etcino;
 
 void balloc(int);
 void wsect(uint, void*);
@@ -140,6 +141,24 @@ makedirs(void)
 	de.inum = xshort(homeino);
 	strcpy(de.name, "home");
 	iappend(rootino, &de, sizeof(de));
+
+	// /etc
+	etcino = ialloc(T_DIR);
+
+	bzero(&de, sizeof(de));
+	de.inum = xshort(etcino);
+	strcpy(de.name, ".");
+	iappend(etcino, &de, sizeof(de));
+
+	bzero(&de, sizeof(de));
+	de.inum = xshort(rootino);
+	strcpy(de.name, "..");
+	iappend(etcino, &de, sizeof(de));
+
+	bzero(&de, sizeof(de));
+	de.inum = xshort(etcino);
+	strcpy(de.name, "etc");
+	iappend(rootino, &de, sizeof(de));
 }
 
 int
@@ -215,11 +234,14 @@ main(int argc, char *argv[])
 		// in place of system binaries like rm and cat.
 		if(shortname[0] == '_') {
 			shortname += 1;
-			// Binaries get copied into /bin, everything
-			// else goes into /home.
+			// Binaries get copied into /bin
 			dirino = binino;
 		}
-
+		else if(strcmp(shortname,"passwd")==0 || strcmp(shortname,"group")==0)
+			// Passwrd and group get copied into /etc, everything
+			// else goes into /home.
+			dirino = etcino;
+		
 		inum = ialloc(T_FILE);
 
 		bzero(&de, sizeof(de));

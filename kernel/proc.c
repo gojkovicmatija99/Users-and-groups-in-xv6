@@ -138,6 +138,8 @@ userinit(void)
 	p->tf->eflags = FL_IF;
 	p->tf->esp = PGSIZE;
 	p->tf->eip = 0;  // beginning of initcode.S
+	p->uid = ROOT;
+	p->euid = ROOT;
 
 	safestrcpy(p->name, "initcode", sizeof(p->name));
 	p->cwd = namei("/");
@@ -196,6 +198,10 @@ fork(void)
 		np->state = UNUSED;
 		return -1;
 	}
+
+	np->uid = curproc->uid;
+	np->euid = curproc->euid;
+
 	np->sz = curproc->sz;
 	np->parent = curproc;
 	*np->tf = *curproc->tf;
