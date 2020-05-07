@@ -174,7 +174,7 @@ tags: $(OBJS) $K/entryother.S $U/_init
 $K/vectors.S: $T/vectors.pl
 	$T/vectors.pl > $K/vectors.S
 
-ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o
+ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o $U/usergroups.o 
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -197,6 +197,7 @@ UPROGS=\
 	$U/_cat\
 	$U/_echo\
 	$U/_forktest\
+	$U/_getty\
 	$U/_grep\
 	$U/_init\
 	$U/_kill\

@@ -441,3 +441,10 @@ sys_pipe(void)
 	fd[1] = fd1;
 	return 0;
 }
+
+int sys_fsize() {
+	struct file *fd;
+	argfd(0,0,&fd);
+
+	return fd->ip->size;
+}
