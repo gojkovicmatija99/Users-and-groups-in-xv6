@@ -455,7 +455,7 @@ extern int isPrintable;
 
 void sys_echoOnOff()
 {
-	isPrintable=!isPrintable;
+	isPrintable=!isPrintable;		// switches to opposite state
 }
 
 static ushort *crt = (ushort*)P2V(0xb8000);

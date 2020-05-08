@@ -54,7 +54,6 @@ int loginUser(char* username, char* password)
 		return 1;
 
    close(fd);
-
    return 0;
 }
 
@@ -65,10 +64,13 @@ void printEtcFile(char* file)
    strcat(path,file);
 
    int fd=open(path,O_RDONLY);
-   int size=fsize(fd);
-   char fileContent[size];
 
-   read(fd,fileContent,size);
+   if(fd!=-1) {
+      int size=fsize(fd);
+      char fileContent[size];
+
+      read(fd,fileContent,size);
+      printf("%s\n", fileContent);
+   }
    
-   printf("%s\n", fileContent);
 }
