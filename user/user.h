@@ -27,6 +27,7 @@ int sleep(int);
 int uptime(void);
 int fsize(int);
 void echoOnOff();
+void clear();
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -44,4 +45,5 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
-char * strtok(char * str, char *comp);
+char* strtok(char*, char*);
+char* strcat(char*, const char*);

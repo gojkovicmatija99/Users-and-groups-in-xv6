@@ -161,6 +161,16 @@ makedirs(void)
 	iappend(rootino, &de, sizeof(de));
 }
 
+int belongsToEtc(char* shortname)
+{
+	char* etcFiles[]={"passwd","motd","issue","group"};
+
+	for(int i=0;i<4;i++)
+		if(strcmp(shortname,etcFiles[i])==0)
+			return 1;
+	return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -237,8 +247,8 @@ main(int argc, char *argv[])
 			// Binaries get copied into /bin
 			dirino = binino;
 		}
-		else if(strcmp(shortname,"passwd")==0 || strcmp(shortname,"group")==0)
-			// Passwrd and group get copied into /etc, everything
+		else if(belongsToEtc(shortname))
+			// If files belongs to etc, put it there
 			// else goes into /home.
 			dirino = etcino;
 		

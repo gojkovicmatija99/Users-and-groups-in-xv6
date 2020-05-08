@@ -2,6 +2,8 @@
 #include "kernel/stat.h"
 #include "user.h"
 
+char *argv[] = { "sh", 0 };
+
 void login()
 {
 	char username[20];
@@ -10,14 +12,14 @@ void login()
 	while(1) {
 		printf("Username: ");
 		gets(username,20);
-		username[strlen(username)-1]='\0';			// removes new line from username
+		username[strlen(username)-1]='\0';			// remove new line from username
 
 		printf("Password: ");
 		echoOnOff();								// turn off echo
 		gets(password,20);
 		echoOnOff();								// turn on echo
 		printf("\n");
-		password[strlen(password)-1]='\0';			// removes new line from password
+		password[strlen(password)-1]='\0';			// remove new line from password
 
 		int valid=loginUser(username, password);
 		if(valid)
@@ -25,12 +27,15 @@ void login()
 		else
 			printf("Login incorrect\n");
 	}
-	printf("hello");
 }
 
 int
 main(int argc, char *argv[])
 {
+	clear();
+	printEtcFile("issue");
 	login();
+	printEtcFile("motd");
+	exec("/bin/sh", argv);
 	exit();
 }

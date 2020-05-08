@@ -9,12 +9,14 @@
 #include "param.h"
 #include "stat.h"
 #include "mmu.h"
+#include "memlayout.h"
 #include "proc.h"
 #include "fs.h"
 #include "spinlock.h"
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "x86.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -454,4 +456,18 @@ extern int isPrintable;
 void sys_echoOnOff()
 {
 	isPrintable=!isPrintable;
+}
+
+static ushort *crt = (ushort*)P2V(0xb8000);
+#define CRTPORT 0x3d4
+
+void sys_clear() 
+{
+	int pos=0;
+	outb(CRTPORT, 14);
+	outb(CRTPORT+1, pos>>8);
+	outb(CRTPORT, 15);
+	outb(CRTPORT+1, pos);
+
+	memset(crt, 0, sizeof(crt[0])*(24*80));
 }

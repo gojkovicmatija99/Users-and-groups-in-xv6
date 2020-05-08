@@ -211,8 +211,8 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie\
 
-fs.img: $T/mkfs README passwd group $(UPROGS)
-	$T/mkfs fs.img README passwd group $(UPROGS)
+fs.img: $T/mkfs README passwd group issue motd $(UPROGS)
+	$T/mkfs fs.img README passwd group issue motd $(UPROGS)
 
 clean: 
 	rm -f *.tex *.dvi *.idx *.aux *.log *.ind *.ilg \

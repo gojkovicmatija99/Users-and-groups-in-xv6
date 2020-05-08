@@ -22,3 +22,4 @@
 #define SYS_close  21
 #define SYS_fsize  22
 #define SYS_echoOnOff 23
+#define SYS_clear 24

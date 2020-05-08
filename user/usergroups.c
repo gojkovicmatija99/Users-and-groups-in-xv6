@@ -57,3 +57,18 @@ int loginUser(char* username, char* password)
 
    return 0;
 }
+
+void printEtcFile(char* file)
+{
+   char path[50];
+   strcpy(path,"/etc/");
+   strcat(path,file);
+
+   int fd=open(path,O_RDONLY);
+   int size=fsize(fd);
+   char fileContent[size];
+
+   read(fd,fileContent,size);
+   
+   printf("%s\n", fileContent);
+}

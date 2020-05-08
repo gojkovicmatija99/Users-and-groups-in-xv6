@@ -32,7 +32,8 @@ main(void)
 			exit();
 		}
 		if(pid == 0){
-			exec("/bin/sh", argv);
+			while(1)
+				exec("/bin/getty", argv);		// execute getty to ask for username and password, when getty is finised ask again
 			printf("init: exec sh failed\n");
 			exit();
 		}
