@@ -26,6 +26,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int fsize(int);
+void echoOnOff();
 
 // ulib.c
 int stat(const char*, struct stat*);

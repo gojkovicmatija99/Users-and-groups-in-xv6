@@ -160,6 +160,8 @@ cgaputc(int c)
 	crt[pos] = ' ' | 0x0700;
 }
 
+int isPrintable=1;
+
 void
 consputc(int c)
 {
@@ -173,7 +175,8 @@ consputc(int c)
 		uartputc('\b'); uartputc(' '); uartputc('\b');
 	} else
 		uartputc(c);
-	cgaputc(c);
+	if(isPrintable)
+		cgaputc(c);
 }
 
 #define INPUT_BUF 128

@@ -448,3 +448,10 @@ int sys_fsize() {
 
 	return fd->ip->size;
 }
+
+extern int isPrintable;
+
+void sys_echoOnOff()
+{
+	isPrintable=!isPrintable;
+}
