@@ -25,20 +25,28 @@ struct user* getUser(char* userString)
    currUser->gid=atoi(tmp[3]);
    strcpy(currUser->realName,tmp[4]);
    strcpy(currUser->homedir,tmp[5]);
+   currUser->next=NULL;
 
    return currUser;
 }
 
-int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser)
+struct user* addUserToList(struct user* userList, struct user* currUser)
 {
-   
-	if(strcmp(username,currUser->username)==0 && strcmp(password,currUser->password)==0)
-		return 1;
-	return 0;
+   if(userList==NULL)
+      return currUser;
+
+   struct user* tmp=userList;
+   while(tmp->next!=NULL)
+      tmp=tmp->next;
+
+   tmp->next=currUser;
+   return userList;
 }
 
-struct user* checkDatabase(char* username, char* password)
-{
+struct user* getAllUsers()
+{  
+   struct user* userList=NULL;
+
 	int fd=open("/etc/passwd",O_RDONLY);
 	int size=fsize(fd);
 	char fileContent[size];
@@ -48,14 +56,36 @@ struct user* checkDatabase(char* username, char* password)
    char* token = strtok(fileContent, "\n");
    while( token != NULL ) {
       struct user* currUser=getUser(token);
-      int valid=checkUsernamePasswordForCurrUser(username,password,currUser);
-      if(valid)
-         return currUser;
+      userList=addUserToList(userList,currUser);
 
       token = strtok(NULL, "\n");
    }
 
    close(fd);
+   return userList;
+}
+
+int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser)
+{
+   
+   if(strcmp(username,currUser->username)==0 && strcmp(password,currUser->password)==0)
+      return 1;
+   return 0;
+}
+
+// TODO: Sometimes user can't login when he fails to login the first time
+struct user* authenticateUser(char* username, char* password)
+{
+   struct user* userList=getAllUsers();
+
+   while(userList!=NULL) {
+      int valid=checkUsernamePasswordForCurrUser(username,password,userList);
+      if(valid)
+         return userList;
+
+      userList=userList->next;
+   }
+
    return NULL;
 }
 

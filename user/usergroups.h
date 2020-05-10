@@ -7,15 +7,18 @@ struct user {
 	int gid;
 	char realName[20];
 	char homedir[20]; 
+	struct user* next;
 };
 
 struct group {
 	char groupname[20];
 	int gid;
 	struct user* users[20];
+	struct group* next;
 };
 
 char* uidToUsername(int uid);
 char* gidToGroupname(int gid);
-struct user* checkDatabase(char* username,char* password);
+struct user* getAllUsers();
+struct user* authenticateUser(char* username,char* password);
 void printEtcFile(char* file);

@@ -22,9 +22,9 @@ struct user* login()
 		printf("\n");
 		password[strlen(password)-1]='\0';			// remove new line from password
 
-		struct user* currUser=checkDatabase(username, password);
+		struct user* currUser=authenticateUser(username, password);
 		if(currUser)
-			break;
+			return currUser;
 		else
 			printf("Login incorrect\n");
 	}
