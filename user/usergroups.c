@@ -37,7 +37,7 @@ int checkUsernamePasswordForCurrUser(char* username, char* password, struct user
 	return 0;
 }
 
-int checkDatabase(char* username, char* password)
+struct user* checkDatabase(char* username, char* password)
 {
 	int fd=open("/etc/passwd",O_RDONLY);
 	int size=fsize(fd);
@@ -50,13 +50,13 @@ int checkDatabase(char* username, char* password)
       struct user* currUser=getUser(token);
       int valid=checkUsernamePasswordForCurrUser(username,password,currUser);
       if(valid)
-         return 1;
+         return currUser;
 
       token = strtok(NULL, "\n");
    }
 
    close(fd);
-   return 0;
+   return NULL;
 }
 
 void printEtcFile(char* file)

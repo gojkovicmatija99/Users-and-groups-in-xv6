@@ -30,6 +30,7 @@ void echoOnOff();
 void clear();
 int getuid();
 int geteuid();
+void setuid(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

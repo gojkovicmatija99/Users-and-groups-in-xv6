@@ -25,3 +25,4 @@
 #define SYS_clear 24
 #define SYS_getuid 25
 #define SYS_geteuid 26
+#define SYS_setuid 27

@@ -99,3 +99,19 @@ int sys_geteuid()
 {
 	return myproc()->euid;
 }
+
+void sys_setuid()
+{
+	int uid;
+
+	if(argint(0, &uid) < 0)
+		return -1;
+
+	struct proc* currProc=myproc();
+	if(currProc->uid==ROOT) {
+		currProc->uid=uid;
+		currProc->euid=uid;
+	}
+	else
+		cprintf("Permision denied\n");
+}

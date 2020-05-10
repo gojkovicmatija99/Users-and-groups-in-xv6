@@ -1,10 +1,11 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user.h"
+#include "usergroups.h"
 
 char *argv[] = { "sh", 0 };
 
-void login()
+struct user* login()
 {
 	char username[20];
 	char password[20];
@@ -21,8 +22,8 @@ void login()
 		printf("\n");
 		password[strlen(password)-1]='\0';			// remove new line from password
 
-		int valid=checkDatabase(username, password);
-		if(valid)
+		struct user* currUser=checkDatabase(username, password);
+		if(currUser)
 			break;
 		else
 			printf("Login incorrect\n");
@@ -34,8 +35,9 @@ main(int argc, char *argv[])
 {
 	clear();
 	printEtcFile("issue");
-	login();
+	struct user* currUser=login();
 	printEtcFile("motd");
+	setuid(currUser->uid);
 	exec("/bin/sh", argv);
 	exit();
 }

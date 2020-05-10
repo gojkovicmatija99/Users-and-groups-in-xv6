@@ -108,6 +108,7 @@ extern int sys_echoOnOff(void);
 extern int sys_clear(void);
 extern int sys_getuid(void);
 extern int sys_geteuid(void);
+extern int sys_setuid(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -136,6 +137,7 @@ static int (*syscalls[])(void) = {
 [SYS_clear]   sys_clear,
 [SYS_getuid]   sys_getuid,
 [SYS_geteuid]   sys_geteuid,
+[SYS_setuid]   sys_setuid,
 };
 
 void
