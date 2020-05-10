@@ -34,7 +34,7 @@ main(void)
 		if(pid == 0){
 			while(1)
 				exec("/bin/getty", argv);		// execute getty to ask for username and password, when getty is finised ask again
-			printf("init: exec sh failed\n");
+			printf("init: exec getty failed\n");
 			exit();
 		}
 		while((wpid=wait()) >= 0 && wpid != pid)

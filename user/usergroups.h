@@ -17,5 +17,5 @@ struct group {
 
 char* uidToUsername(int uid);
 char* gidToGroupname(int gid);
-int loginUser(char* username,char* password);
+int checkDatabase(char* username,char* password);
 void printEtcFile(char* file);

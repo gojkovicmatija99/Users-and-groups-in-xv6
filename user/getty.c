@@ -21,7 +21,7 @@ void login()
 		printf("\n");
 		password[strlen(password)-1]='\0';			// remove new line from password
 
-		int valid=loginUser(username, password);
+		int valid=checkDatabase(username, password);
 		if(valid)
 			break;
 		else

@@ -1,19 +1,24 @@
 #include "usergroups.h"
 #include "kernel/fcntl.h"
 
-struct user* readUser(char* userString)
+struct user* getUser(char* userString)
 {
 	struct user* currUser=(struct user*)malloc(sizeof(struct user));
 	char tmp[6][50];	
+   char buf[50];
 
-	char* token;
-	token= strtok(userString, ":");
-	int curr=0;
-   	while( token != NULL ) {	
-      strcpy(tmp[curr++],token);
-      token = strtok(NULL, ":");
+   int pnt=0;                 // pnt points to the absolute position in the string
+   for(int i=0;i<6;i++) {
+      int curr=0;             // curr points to the relative position in the string
+      while(userString[curr+pnt]!=':' && userString[curr+pnt]!='\0') {
+         buf[curr]=userString[curr+pnt];
+         curr++;
+      }
+      buf[curr]='\0';
+      strcpy(tmp[i],buf);
+      pnt+=curr+1;         // pnt points to where curr stoped + 1 to skip ':'
    }
-
+   
    strcpy(currUser->username,tmp[0]);
    strcpy(currUser->password,tmp[1]);
    currUser->uid=atoi(tmp[2]);
@@ -24,34 +29,37 @@ struct user* readUser(char* userString)
    return currUser;
 }
 
-int checkUsernamePassword(char* username, char* password, struct user* currUser)
+int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser)
 {
+   
 	if(strcmp(username,currUser->username)==0 && strcmp(password,currUser->password)==0)
 		return 1;
 	return 0;
 }
 
-int loginUser(char* username, char* password)
+// TODO: System can only have 10 users, fix this
+int checkDatabase(char* username, char* password)
 {
 	int fd=open("/etc/passwd",O_RDONLY);
 	int size=fsize(fd);
 	char fileContent[size];
 
 	read(fd,fileContent,size);
+   char tmp[10][128];
 
-	/*char* token = strtok2(fileContent, ENTER);
-   	while( token != NULL ) {
-      struct user* currUser=readUser(token);
-      int valid=checkUsernamePassword(username,password,currUser);
+   int i=0;
+   char* token = strtok(fileContent, "\n");
+   while( token != NULL ) {
+      strcpy(tmp[i++],token);
+      token = strtok(NULL, "\n");
+   }
+
+   for(i=0;i<10;i++) {
+      struct user* currUser=getUser(tmp[i]);
+      int valid=checkUsernamePasswordForCurrUser(username,password,currUser);
       if(valid)
-      	return 1;
-      token = strtok2(NULL, ENTER);
-   }*/
-
-	struct user* currUser=readUser(fileContent);
-	int valid=checkUsernamePassword(username,password,currUser);
-	if(valid)
-		return 1;
+         return 1;
+   }
 
    close(fd);
    return 0;
