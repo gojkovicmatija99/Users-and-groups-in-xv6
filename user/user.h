@@ -28,6 +28,8 @@ int uptime(void);
 int fsize(int);
 void echoOnOff();
 void clear();
+int getuid();
+int geteuid();
 
 // ulib.c
 int stat(const char*, struct stat*);

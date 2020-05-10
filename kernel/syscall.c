@@ -106,6 +106,8 @@ extern int sys_uptime(void);
 extern int sys_fsize(void);
 extern int sys_echoOnOff(void);
 extern int sys_clear(void);
+extern int sys_getuid(void);
+extern int sys_geteuid(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,6 +134,8 @@ static int (*syscalls[])(void) = {
 [SYS_fsize]   sys_fsize,
 [SYS_echoOnOff]   sys_echoOnOff,
 [SYS_clear]   sys_clear,
+[SYS_getuid]   sys_getuid,
+[SYS_geteuid]   sys_geteuid,
 };
 
 void

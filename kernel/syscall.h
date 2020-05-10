@@ -23,3 +23,5 @@
 #define SYS_fsize  22
 #define SYS_echoOnOff 23
 #define SYS_clear 24
+#define SYS_getuid 25
+#define SYS_geteuid 26
