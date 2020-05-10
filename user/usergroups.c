@@ -37,7 +37,6 @@ int checkUsernamePasswordForCurrUser(char* username, char* password, struct user
 	return 0;
 }
 
-// TODO: System can only have 10 users, fix this
 int checkDatabase(char* username, char* password)
 {
 	int fd=open("/etc/passwd",O_RDONLY);
@@ -45,20 +44,15 @@ int checkDatabase(char* username, char* password)
 	char fileContent[size];
 
 	read(fd,fileContent,size);
-   char tmp[10][128];
 
-   int i=0;
    char* token = strtok(fileContent, "\n");
    while( token != NULL ) {
-      strcpy(tmp[i++],token);
-      token = strtok(NULL, "\n");
-   }
-
-   for(i=0;i<10;i++) {
-      struct user* currUser=getUser(tmp[i]);
+      struct user* currUser=getUser(token);
       int valid=checkUsernamePasswordForCurrUser(username,password,currUser);
       if(valid)
          return 1;
+
+      token = strtok(NULL, "\n");
    }
 
    close(fd);
@@ -82,3 +76,4 @@ void printEtcFile(char* file)
    }
    
 }
+
