@@ -10,6 +10,7 @@
 #include "kernel/fs.h"
 #include "kernel/stat.h"
 #include "kernel/param.h"
+#include "user/usergroups.h"
 
 #ifndef static_assert
 #define static_assert(a, b) do { switch (0) case 0: case (a): ; } while (0)
@@ -37,6 +38,7 @@ uint homeino;
 uint binino;
 uint devino;
 uint etcino;
+uint homeRootino;
 
 void balloc(int);
 void wsect(uint, void*);
@@ -142,6 +144,24 @@ makedirs(void)
 	strcpy(de.name, "home");
 	iappend(rootino, &de, sizeof(de));
 
+	// /home/root
+	homeRootino = ialloc(T_DIR);
+
+	bzero(&de, sizeof(de));
+	de.inum = xshort(homeRootino);
+	strcpy(de.name, ".");
+	iappend(homeRootino, &de, sizeof(de));
+
+	bzero(&de, sizeof(de));
+	de.inum = xshort(homeino);
+	strcpy(de.name, "..");
+	iappend(homeRootino, &de, sizeof(de));
+
+	bzero(&de, sizeof(de));
+	de.inum = xshort(homeRootino);
+	strcpy(de.name, "root");
+	iappend(homeino, &de, sizeof(de));
+
 	// /etc
 	etcino = ialloc(T_DIR);
 
@@ -159,6 +179,11 @@ makedirs(void)
 	de.inum = xshort(etcino);
 	strcpy(de.name, "etc");
 	iappend(rootino, &de, sizeof(de));
+}
+
+void makeUserHomeDirs()
+{
+	
 }
 
 int belongsToEtc(char* shortname)
@@ -221,6 +246,7 @@ main(int argc, char *argv[])
 	wsect(1, buf);
 
 	makedirs();
+	makeUserHomeDirs();
 
 	for(i = 2; i < argc; i++){
 		// get rid of "user/"
@@ -236,7 +262,7 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-		dirino = homeino;
+		dirino = homeRootino;
 
 		// Skip leading _ in name when writing to file system.
 		// The binaries are named _rm, _cat, etc. to keep the
@@ -249,7 +275,7 @@ main(int argc, char *argv[])
 		}
 		else if(belongsToEtc(shortname))
 			// If files belongs to etc, put it there
-			// else goes into /home.
+			// everything else goes into /home/root.
 			dirino = etcino;
 		
 		inum = ialloc(T_FILE);

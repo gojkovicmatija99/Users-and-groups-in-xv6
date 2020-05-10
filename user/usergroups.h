@@ -16,9 +16,3 @@ struct group {
 	struct user* users[20];
 	struct group* next;
 };
-
-char* uidToUsername(int uid);
-char* gidToGroupname(int gid);
-struct user* getAllUsers();
-struct user* authenticateUser(char* username,char* password);
-void printEtcFile(char* file);
