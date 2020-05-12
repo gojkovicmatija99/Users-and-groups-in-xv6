@@ -7,17 +7,17 @@ char *argv[] = { "sh", 0 };
 
 struct user* login()
 {
-	char username[20];
-	char password[20];
+	char username[32];
+	char password[32];
 
 	while(1) {
 		printf("Username: ");
-		gets(username,20);
+		gets(username,32);
 		username[strlen(username)-1]='\0';			// remove new line from username
 
 		printf("Password: ");
 		echoOnOff();								// turn off echo
-		gets(password,20);
+		gets(password,32);
 		echoOnOff();								// turn on echo
 		printf("\n");
 		password[strlen(password)-1]='\0';			// remove new line from password
@@ -38,6 +38,7 @@ main(int argc, char *argv[])
 	struct user* currUser=login();
 	printEtcFile("motd");
 	setuid(currUser->uid);
+	chdir(currUser->homedir);
 	exec("/bin/sh", argv);
 	exit();
 }

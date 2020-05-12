@@ -4,8 +4,8 @@
 struct user* getUser(char* userString)
 {
 	struct user* currUser=(struct user*)malloc(sizeof(struct user));
-	char tmp[6][50];	
-   char buf[50];
+	char tmp[6][64];	
+   char buf[64];
 
    int pnt=0;                 // pnt points to the absolute position in the string
    for(int i=0;i<6;i++) {
@@ -91,7 +91,7 @@ struct user* authenticateUser(char* username, char* password)
 
 void printEtcFile(char* file)
 {
-   char path[50];
+   char path[64];
    strcpy(path,"/etc/");
    strcat(path,file);
 
@@ -106,4 +106,3 @@ void printEtcFile(char* file)
    }
    
 }
-

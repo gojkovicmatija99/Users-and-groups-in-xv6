@@ -10,7 +10,6 @@
 #include "kernel/fs.h"
 #include "kernel/stat.h"
 #include "kernel/param.h"
-#include "user/usergroups.h"
 
 #ifndef static_assert
 #define static_assert(a, b) do { switch (0) case 0: case (a): ; } while (0)
@@ -39,6 +38,7 @@ uint binino;
 uint devino;
 uint etcino;
 uint homeRootino;
+uint tmpino;
 
 void balloc(int);
 void wsect(uint, void*);
@@ -179,11 +179,58 @@ makedirs(void)
 	de.inum = xshort(etcino);
 	strcpy(de.name, "etc");
 	iappend(rootino, &de, sizeof(de));
+
+	makeUserHomeDirs(de);
 }
 
-void makeUserHomeDirs()
+void getHomeDir(char* line)			// doesn't have a return type because strtok modifies string and sets pointer to the homedir
 {
-	
+	char* token;
+	token=strtok(line, ":");
+	int i=0;
+	while(i<5) {					// get the homedir from line
+		token=strtok(NULL, ":");
+		i++;
+	}
+
+	i=0;
+	while(i<3) {					// get the directory name after "/home/"
+		token=strtok(NULL, "/");
+		i++;
+	}
+}
+
+void makeUserHomeDirs(struct dirent de)
+{
+	FILE* file=fopen("passwd","r");
+	char line[192];
+
+	while(fgets(line, sizeof(line), file) != NULL) {
+		line[strlen(line)-1]='\0';			// remove new line			
+		getHomeDir(line);						
+		uint tmpino=ialloc(T_DIR);
+
+		if(strcmp(line, "root")) {			// if homedir is "root", don't create it because it is already in system
+			bzero(&de, sizeof(de));
+			de.inum = xshort(tmpino);
+			strcpy(de.name, ".");
+			iappend(tmpino, &de, sizeof(de));
+
+			bzero(&de, sizeof(de));
+			de.inum = xshort(homeino);
+			strcpy(de.name, "..");
+			iappend(tmpino, &de, sizeof(de));
+
+			bzero(&de, sizeof(de));
+			de.inum = xshort(tmpino);
+			strcpy(de.name, line);
+			iappend(homeino, &de, sizeof(de));
+		}
+		
+	}
+
+	fclose(file);
+
 }
 
 int belongsToEtc(char* shortname)
@@ -246,7 +293,6 @@ main(int argc, char *argv[])
 	wsect(1, buf);
 
 	makedirs();
-	makeUserHomeDirs();
 
 	for(i = 2; i < argc; i++){
 		// get rid of "user/"
