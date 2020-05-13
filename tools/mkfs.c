@@ -38,7 +38,6 @@ uint binino;
 uint devino;
 uint etcino;
 uint homeRootino;
-uint tmpino;
 
 void balloc(int);
 void wsect(uint, void*);
@@ -204,11 +203,12 @@ void makeUserHomeDirs(struct dirent de)
 {
 	FILE* file=fopen("passwd","r");
 	char line[192];
+	uint tmpino;
 
 	while(fgets(line, sizeof(line), file) != NULL) {
 		line[strlen(line)-1]='\0';			// remove new line			
 		getHomeDir(line);						
-		uint tmpino=ialloc(T_DIR);
+		tmpino=ialloc(T_DIR);
 
 		if(strcmp(line, "root")) {			// if homedir is "root", don't create it because it is already in system
 			bzero(&de, sizeof(de));

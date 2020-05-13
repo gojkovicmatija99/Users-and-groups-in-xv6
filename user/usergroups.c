@@ -1,7 +1,7 @@
 #include "usergroups.h"
 #include "kernel/fcntl.h"
 
-struct user* getUser(char* userString)
+struct user* getUserFromString(char* userString)
 {
 	struct user* currUser=(struct user*)malloc(sizeof(struct user));
 	char tmp[6][64];	
@@ -30,6 +30,40 @@ struct user* getUser(char* userString)
    return currUser;
 }
 
+struct user* createUser(char* homedir, char* uidString, char* realname,char* username)
+{
+   struct user* newUser=(struct user*)malloc(sizeof(struct user));
+
+   strcpy(newUser->homedir, "/home/");                    // all users are stored in "/home/"
+   if(homedir[0]!='\0')                                   // if user has entered homedir
+      strcat(newUser->homedir, homedir);
+   else
+      strcat(newUser->homedir, username);
+
+   if(mkdir(newUser->homedir)==-1)                       // if dir isn't created, return error
+      return NULL;
+
+   if(uidString[0]!='\0') {                              // if user has entered uid
+      int uid=atoi(uidString);
+      if(uid==0)                                               // if uidString isn't a number, return error
+         return NULL;
+      if(isUidAvailable(uid))                                  // if uid isn't available, return error
+         newUser->uid=uid;
+      else
+         return NULL;
+   }
+   else {
+      int uid=getNextAvailableUid();                     // else get available uid that is greater than 1000
+      newUser->uid=uid;
+   }
+
+   strcpy(newUser->realname,realname);
+   strcpy(newUser->username,username);
+
+   return newUser;
+
+}
+
 struct user* addUserToList(struct user* userList, struct user* currUser)
 {
    if(userList==NULL)
@@ -43,7 +77,7 @@ struct user* addUserToList(struct user* userList, struct user* currUser)
    return userList;
 }
 
-struct user* getAllUsers()
+struct user* getAllUsersFromPasswdFile()
 {  
    struct user* userList=NULL;
 
@@ -55,7 +89,7 @@ struct user* getAllUsers()
 
    char* token = strtok(fileContent, "\n");
    while( token != NULL ) {
-      struct user* currUser=getUser(token);
+      struct user* currUser=getUserFromString(token);
       userList=addUserToList(userList,currUser);
 
       token = strtok(NULL, "\n");
@@ -76,7 +110,7 @@ int checkUsernamePasswordForCurrUser(char* username, char* password, struct user
 // TODO: Sometimes user can't login when he fails to login the first time
 struct user* authenticateUser(char* username, char* password)
 {
-   struct user* userList=getAllUsers();
+   struct user* userList=getAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
       int valid=checkUsernamePasswordForCurrUser(username,password,userList);
@@ -105,4 +139,44 @@ void printEtcFile(char* file)
       printf("%s\n", fileContent);
    }
    
+}
+
+int isUidAvailable(int uid)
+{
+   struct user* userList=getAllUsersFromPasswdFile();
+
+   while(userList!=NULL) {
+      if(userList->uid==uid)
+         return 0;
+
+      userList=userList->next;
+   }
+
+   return 1;
+}
+
+int getNextAvailableUid() 
+{
+   struct user* userList=getAllUsersFromPasswdFile();
+   int uid=1000;
+
+   while(userList!=NULL) {
+      if(userList->uid==uid)
+         uid++;
+
+      userList=userList->next;
+   }
+
+   return uid;
+}
+
+void addNewUserToPasswdFile(struct user* newUser)
+{
+   struct user* userList=getAllUsersFromPasswdFile();
+
+   while(userList!=NULL)
+      userList=userList->next;
+   
+   userList->next=newUser;
+
 }
