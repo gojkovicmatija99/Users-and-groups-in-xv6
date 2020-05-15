@@ -1,5 +1,8 @@
-#include "usergroups.h"
+#include "kernel/types.h"
+#include "kernel/stat.h"
 #include "kernel/fcntl.h"
+#include "user.h"
+#include "usergroups.h"
 
 struct user* getUserFromString(char* userString)
 {
@@ -23,7 +26,7 @@ struct user* getUserFromString(char* userString)
    strcpy(currUser->password,tmp[1]);
    currUser->uid=atoi(tmp[2]);
    currUser->gid=atoi(tmp[3]);
-   strcpy(currUser->realName,tmp[4]);
+   strcpy(currUser->realname,tmp[4]);
    strcpy(currUser->homedir,tmp[5]);
    currUser->next=NULL;
 
@@ -170,7 +173,7 @@ int getNextAvailableUid()
    return uid;
 }
 
-void addNewUserToPasswdFile(struct user* newUser)
+/*void addNewUserToPasswdFile(struct user* newUser)
 {
    struct user* userList=getAllUsersFromPasswdFile();
 
@@ -179,4 +182,4 @@ void addNewUserToPasswdFile(struct user* newUser)
    
    userList->next=newUser;
 
-}
+}*/

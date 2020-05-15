@@ -5,7 +5,7 @@ struct user {
 	char password[32];
 	int uid;
 	int gid;
-	char realName[32];
+	char realname[32];
 	char homedir[64]; 
 	struct user* next;
 };

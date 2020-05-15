@@ -47,13 +47,11 @@ main(int argc, char *argv[])
 	int valid=parseCommandLineArguments(arguments, argc, argv);
 	if(!valid) {
 		printf("Error while creating user");
-		exit();
 	}
 	else {
 		struct user* newUser=createUser(arguments[0], arguments[1], arguments[2], arguments[3]);
 		if(newUser==NULL) {
 			printf("Error while creating user");
-			exit();
 		}
 		//else
 		//	addNewUserToPasswdFile(newUser);
