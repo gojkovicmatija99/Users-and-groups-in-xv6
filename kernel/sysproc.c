@@ -113,7 +113,7 @@ int sys_setuid()
 		currProc->euid=uid;
 	}
 	else
-		cprintf("Permision denied\n");
+		cprintf("Permision denied!\n");
 
 	return 1;
 }

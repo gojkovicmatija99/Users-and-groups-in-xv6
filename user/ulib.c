@@ -260,3 +260,10 @@ int abs(int n)
 {
 	return n<0?-n:n;
 }
+
+int isEmptyString(char* string)
+{
+   if(string[0]==0)
+      return 1;
+   return 0;
+}

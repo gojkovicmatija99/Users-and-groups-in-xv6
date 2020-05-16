@@ -1,4 +1,5 @@
 #define NULL 0
+#define ROOT 0   // uid of the root user
 
 struct user {
 	char username[32];
@@ -17,18 +18,20 @@ struct group {
 	struct group* next;
 };
 
+struct user* selectAllUsersFromPasswdFile();
+void updatePasswdFile(struct user* userList);
+
 struct user* getUserFromString(char* userString);
-char* getStringFromUser(struct user* currUser, char userString[192]);
-struct user* createUser(char* homedir, char* uid, char* realname,char* username);
-struct user* addUserToList(struct user* userList, struct user* currUser);
-struct user* getAllUsersFromPasswdFile();
-int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser);
-struct user* authenticateUser(char* username, char* password);
-void printEtcFile(char* file);
-int isUidAvailable(int uid);
-int getNextAvailableUid();
-//void addNewUserToPasswdFile(struct user* newUser);
 struct user* getUserFromUid(int uid);
 struct user* getUserFromUsername(char* username);
+struct user* createUser(char* homedir, char* uid, char* realname,char* username);
+struct user* addUserToList(struct user* userList, struct user* currUser);
+struct user* authenticateUser(char* username, char* password);
+int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser);
+int isUidAvailable(int uid);
+int getNextAvailableUid();
 int authenticateOldPassword(struct user* currUser, char* oldPassword);
-void updatePasswordForUserInPasswdFile(struct user* user, char* newPassword);
+void updatePasswordForUser(struct user* user, char* newPassword);
+void addNewUser(struct user* newUser);
+void printEtcFile(char* file);
+char* getStringFromUser(struct user* currUser, char* userString);

@@ -52,3 +52,4 @@ char* strtok(char*, const char*);
 char* strcat(char*, const char*);
 char* itoa(int, char*, int);
 int abs(int);
+int isEmptyString(char*);

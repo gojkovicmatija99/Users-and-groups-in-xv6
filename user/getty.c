@@ -20,7 +20,7 @@ struct user* login()
 		gets(password,32);
 		echoOnOff();								// turn on echo
 		printf("\n");
-		password[strlen(password)-1]='\0';			// remove new line from password
+		password[strlen(password)-1]='\0';
 
 		struct user* currUser=authenticateUser(username, password);
 		if(currUser)

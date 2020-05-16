@@ -33,7 +33,7 @@ struct user* getUserFromString(char* userString)
    return currUser;
 }
 
-char* getStringFromUser(struct user* currUser, char userString[192])
+char* getStringFromUser(struct user* currUser, char* userString)
 {
    strcpy(userString, currUser->username);
    strcat(userString, ":");
@@ -65,7 +65,7 @@ struct user* createUser(char* homedir, char* uidString, char* realname,char* use
    struct user* newUser=(struct user*)malloc(sizeof(struct user));
 
    strcpy(newUser->homedir, "/home/");                    // all users are stored in "/home/"
-   if(homedir[0]!='\0')                                   // if user has entered homedir
+   if(!isEmptyString(homedir))                                   // if user has entered homedir
       strcat(newUser->homedir, homedir);
    else
       strcat(newUser->homedir, username);
@@ -73,7 +73,7 @@ struct user* createUser(char* homedir, char* uidString, char* realname,char* use
    if(mkdir(newUser->homedir)==-1)                       // if dir isn't created, return error
       return NULL;
 
-   if(uidString[0]!='\0') {                              // if user has entered uid
+   if(!isEmptyString(uidString)) {                              // if user has entered uid
       int uid=atoi(uidString);
       if(uid==0)                                               // if uidString isn't a number, return error
          return NULL;
@@ -87,8 +87,8 @@ struct user* createUser(char* homedir, char* uidString, char* realname,char* use
       newUser->uid=uid;
    }
 
-   strcpy(newUser->realname,realname);
-   strcpy(newUser->username,username);
+   strcpy(newUser->realname, realname);
+   strcpy(newUser->username, username);
 
    return newUser;
 
@@ -107,7 +107,7 @@ struct user* addUserToList(struct user* userList, struct user* currUser)
    return userList;
 }
 
-struct user* getAllUsersFromPasswdFile()
+struct user* selectAllUsersFromPasswdFile()
 {  
    struct user* userList=NULL;
 
@@ -139,7 +139,7 @@ int checkUsernamePasswordForCurrUser(char* username, char* password, struct user
 
 struct user* authenticateUser(char* username, char* password)
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
       int valid=checkUsernamePasswordForCurrUser(username,password,userList);
@@ -172,7 +172,7 @@ void printEtcFile(char* file)
 
 int isUidAvailable(int uid)
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
       if(userList->uid==uid)
@@ -186,7 +186,7 @@ int isUidAvailable(int uid)
 
 int getNextAvailableUid() 
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
    int uid=1000;
 
    while(userList!=NULL) {
@@ -201,7 +201,7 @@ int getNextAvailableUid()
 
 struct user* getUserFromUid(int uid)
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
       if(uid==userList->uid)
@@ -215,7 +215,7 @@ struct user* getUserFromUid(int uid)
 
 struct user* getUserFromUsername(char* username)
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
       if(!strcmp(userList->username, username))
@@ -235,12 +235,12 @@ int authenticateOldPassword(struct user* currUser, char* oldPassword)
    return 0;
 }
 
-void updatePasswordForUserInPasswdFile(struct user* currUser, char* newPassword)
+void updatePasswordForUser(struct user* currUser, char* newPassword)
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
 
    struct user* tmpUser=userList;
-   while(tmpUser->next!=NULL) {
+   while(tmpUser!=NULL) {
       if(tmpUser->uid==currUser->uid) {
          strcpy(tmpUser->password, newPassword);
          break;
@@ -248,7 +248,12 @@ void updatePasswordForUserInPasswdFile(struct user* currUser, char* newPassword)
 
       tmpUser=tmpUser->next;
    }
-   
+
+   updatePasswdFile(userList);
+}
+
+void updatePasswdFile(struct user* userList)
+{
    int fd=open("/etc/passwd",O_WRONLY);
 
    while(userList!=NULL) {
@@ -262,9 +267,9 @@ void updatePasswordForUserInPasswdFile(struct user* currUser, char* newPassword)
    close(fd);
 }
 
-/*void addNewUserToPasswdFile(struct user* newUser)
+void addNewUser(struct user* newUser)
 {
-   struct user* userList=getAllUsersFromPasswdFile();
+   struct user* userList=selectAllUsersFromPasswdFile();
 
    struct user* tmpUser=userList;
    while(tmpUser->next!=NULL)
@@ -272,10 +277,5 @@ void updatePasswordForUserInPasswdFile(struct user* currUser, char* newPassword)
    
    tmpUser->next=newUser;
 
-   int fd=open("/etc/passwd",O_WRONLY);
-
-   char* test="test";
-   write(fd, test, strlen(test));
-   close(fd);
-
-}*/
+   updatePasswdFile(userList);
+}
