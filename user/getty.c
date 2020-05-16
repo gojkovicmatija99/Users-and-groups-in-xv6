@@ -26,7 +26,7 @@ struct user* login()
 		if(currUser)
 			return currUser;
 		else
-			printf("Login incorrect\n");
+			printf("Login incorrect!\n");
 	}
 }
 

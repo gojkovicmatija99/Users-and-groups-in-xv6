@@ -1,4 +1,4 @@
-#include "kernel/types.h"
+	#include "kernel/types.h"
 #include "kernel/stat.h"
 #include "kernel/fcntl.h"
 #include "user.h"
@@ -133,53 +133,58 @@ memmove(void *vdst, const void *vsrc, int n)
 	return vdst;
 }
 
-char * strtok(char * str, char *comp)
-{
-	static int pos;
-	static char *s;	
-	int i =0, start = pos;
-
-	// Copying the string for further calls of strtok
-	if(str!=NULL)
-		s = str;
-	
-	i = 0;
-	int j = 0;
-	//While not end of string
-	while(s[pos] != '\0')
-	{
-		j = 0;	
-		//Comparing of one of the delimiter matches the character in the string
-		while(comp[j] != '\0')
-		{		
-			//Pos point to the next location in the string that we have to read
-			if(s[pos] == comp[j])
-			{
-				//Replace the delimter by \0 to break the string
-				s[pos] = '\0';
-				pos = pos+1;				
-				//Checking for the case where there is no relevant string before the delimeter.
-				//start specifies the location from where we have to start reading the next character
-				if(s[start] != '\0')
-					return (&s[start]);
-				else
-				{
-					// Move to the next string after the delimiter
-					start = pos;
-					// Decrementing as it will be incremented at the end of the while loop
-					pos--;
-					break;
-				}
-			}
-			j++;
-		}
-		pos++;		
-	}//End of Outer while
-	s[pos] = '\0';
-	if(s[start] == '\0')
-		return NULL;
-	else
-		return &s[start];
+char* strtok(char* str, const char* delimiters) {
+ 
+ 	static char* sp = NULL;
+    int i = 0;
+    int len = strlen(delimiters);
+ 
+    /* if the original string has nothing left */
+    if(!str && !sp)
+        return NULL;
+ 
+    /* initialize the sp during the first call */
+    if(str && !sp)
+        sp = str;
+ 
+    /* find the start of the substring, skip delimiters */
+    char* p_start = sp;
+    while(1) {
+        for(i = 0; i < len; i ++) {
+            if(*p_start == delimiters[i]) {
+                p_start ++;
+                break;
+            }
+        }
+ 
+        if(i == len) {
+               sp = p_start;
+               break;
+        }
+    }
+ 
+    /* return NULL if nothing left */
+    if(*sp == '\0') {
+        sp = NULL;
+        return sp;
+    }
+ 
+    /* find the end of the substring, and
+        replace the delimiter with null */
+    while(*sp != '\0') {
+        for(i = 0; i < len; i ++) {
+            if(*sp == delimiters[i]) {
+                *sp = '\0';
+                break;
+            }
+        }
+ 
+        sp ++;
+        if (i < len)
+            break;
+    }
+ 
+    return p_start;
 }
 
 char* strcat(char* destination, const char* source)
@@ -196,4 +201,62 @@ char* strcat(char* destination, const char* source)
 
 	// destination is returned by standard strcat()
 	return destination;
+}
+
+// inline function to swap two numbers
+inline void swap(char *x, char *y) {
+	char t = *x; *x = *y; *y = t;
+}
+
+// function to reverse buffer[i..j]
+char* reverse(char *buffer, int i, int j)
+{
+	while (i < j)
+		swap(&buffer[i++], &buffer[j--]);
+
+	return buffer;
+}
+
+// Iterative function to implement itoa() function in C
+char* itoa(int value, char* buffer, int base)
+{
+	// invalid input
+	if (base < 2 || base > 32)
+		return buffer;
+
+	// consider absolute value of number
+	int n = abs(value);
+
+	int i = 0;
+	while (n)
+	{
+		int r = n % base;
+
+		if (r >= 10) 
+			buffer[i++] = 65 + (r - 10);
+		else
+			buffer[i++] = 48 + r;
+
+		n = n / base;
+	}
+
+	// if number is 0
+	if (i == 0)
+		buffer[i++] = '0';
+
+	// If base is 10 and value is negative, the resulting string 
+	// is preceded with a minus sign (-)
+	// With any other base, value is always considered unsigned
+	if (value < 0 && base == 10)
+		buffer[i++] = '-';
+
+	buffer[i] = '\0'; // null terminate string
+
+	// reverse the string and return it
+	return reverse(buffer, 0, i - 1);
+}
+
+int abs(int n)
+{
+	return n<0?-n:n;
 }

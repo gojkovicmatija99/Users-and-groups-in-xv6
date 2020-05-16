@@ -70,6 +70,56 @@ xint(uint x)
 	return y;
 }
 
+void getHomeDir(char* line)			// doesn't have a return type because strtok modifies string and sets pointer to the homedir
+{
+	char* token=strtok(line, ":");
+	int i=0;
+	while(i<5) {					// get the homedir from line
+		token=strtok(NULL, ":");
+		i++;
+	}
+
+	i=0;
+	while(i<3) {					// get the directory name after "/home/"
+		token=strtok(NULL, "/");
+		i++;
+	}
+}
+
+void makeUserHomeDirs(struct dirent de)
+{
+	FILE* file=fopen("passwd","r");
+	char line[192];
+	uint tmpino;
+
+	while(fgets(line, sizeof(line), file) != NULL) {
+		line[strlen(line)-1]='\0';			// remove new line			
+		getHomeDir(line);						
+		tmpino=ialloc(T_DIR);
+
+		if(strcmp(line, "root")) {			// if homedir is "root", don't create it because it is already in system
+			bzero(&de, sizeof(de));
+			de.inum = xshort(tmpino);
+			strcpy(de.name, ".");
+			iappend(tmpino, &de, sizeof(de));
+
+			bzero(&de, sizeof(de));
+			de.inum = xshort(homeino);
+			strcpy(de.name, "..");
+			iappend(tmpino, &de, sizeof(de));
+
+			bzero(&de, sizeof(de));
+			de.inum = xshort(tmpino);
+			strcpy(de.name, line);
+			iappend(homeino, &de, sizeof(de));
+		}
+		
+	}
+
+	fclose(file);
+
+}
+
 void
 makedirs(void)
 {
@@ -180,57 +230,6 @@ makedirs(void)
 	iappend(rootino, &de, sizeof(de));
 
 	makeUserHomeDirs(de);
-}
-
-void getHomeDir(char* line)			// doesn't have a return type because strtok modifies string and sets pointer to the homedir
-{
-	char* token;
-	token=strtok(line, ":");
-	int i=0;
-	while(i<5) {					// get the homedir from line
-		token=strtok(NULL, ":");
-		i++;
-	}
-
-	i=0;
-	while(i<3) {					// get the directory name after "/home/"
-		token=strtok(NULL, "/");
-		i++;
-	}
-}
-
-void makeUserHomeDirs(struct dirent de)
-{
-	FILE* file=fopen("passwd","r");
-	char line[192];
-	uint tmpino;
-
-	while(fgets(line, sizeof(line), file) != NULL) {
-		line[strlen(line)-1]='\0';			// remove new line			
-		getHomeDir(line);						
-		tmpino=ialloc(T_DIR);
-
-		if(strcmp(line, "root")) {			// if homedir is "root", don't create it because it is already in system
-			bzero(&de, sizeof(de));
-			de.inum = xshort(tmpino);
-			strcpy(de.name, ".");
-			iappend(tmpino, &de, sizeof(de));
-
-			bzero(&de, sizeof(de));
-			de.inum = xshort(homeino);
-			strcpy(de.name, "..");
-			iappend(tmpino, &de, sizeof(de));
-
-			bzero(&de, sizeof(de));
-			de.inum = xshort(tmpino);
-			strcpy(de.name, line);
-			iappend(homeino, &de, sizeof(de));
-		}
-		
-	}
-
-	fclose(file);
-
 }
 
 int belongsToEtc(char* shortname)

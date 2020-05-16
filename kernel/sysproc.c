@@ -100,7 +100,7 @@ int sys_geteuid()
 	return myproc()->euid;
 }
 
-void sys_setuid()
+int sys_setuid()
 {
 	int uid;
 
@@ -114,4 +114,6 @@ void sys_setuid()
 	}
 	else
 		cprintf("Permision denied\n");
+
+	return 1;
 }

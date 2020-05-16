@@ -33,6 +33,33 @@ struct user* getUserFromString(char* userString)
    return currUser;
 }
 
+char* getStringFromUser(struct user* currUser, char userString[192])
+{
+   strcpy(userString, currUser->username);
+   strcat(userString, ":");
+
+   strcat(userString, currUser->password);
+   strcat(userString, ":");
+
+   char uidString[32];
+   itoa(currUser->uid, uidString, 10);
+   strcat(userString, uidString);
+   strcat(userString, ":");
+
+   char gidString[32];
+   itoa(currUser->gid, gidString, 10);
+   strcat(userString, gidString);
+   strcat(userString, ":");
+
+   strcat(userString, currUser->realname);
+   strcat(userString, ":");
+
+   strcat(userString, currUser->homedir);
+   strcat(userString, "\n");
+
+   return userString;
+}
+
 struct user* createUser(char* homedir, char* uidString, char* realname,char* username)
 {
    struct user* newUser=(struct user*)malloc(sizeof(struct user));
@@ -110,7 +137,6 @@ int checkUsernamePasswordForCurrUser(char* username, char* password, struct user
    return 0;
 }
 
-// TODO: Sometimes user can't login when he fails to login the first time
 struct user* authenticateUser(char* username, char* password)
 {
    struct user* userList=getAllUsersFromPasswdFile();
@@ -173,13 +199,83 @@ int getNextAvailableUid()
    return uid;
 }
 
+struct user* getUserFromUid(int uid)
+{
+   struct user* userList=getAllUsersFromPasswdFile();
+
+   while(userList!=NULL) {
+      if(uid==userList->uid)
+         return userList;
+
+      userList=userList->next;
+   }
+
+   return NULL;
+}
+
+struct user* getUserFromUsername(char* username)
+{
+   struct user* userList=getAllUsersFromPasswdFile();
+
+   while(userList!=NULL) {
+      if(!strcmp(userList->username, username))
+         return userList;
+
+      userList=userList->next;
+   }
+
+   return NULL;
+}
+
+int authenticateOldPassword(struct user* currUser, char* oldPassword)
+{
+   if(!strcmp(currUser->password, oldPassword))
+      return 1;
+
+   return 0;
+}
+
+void updatePasswordForUserInPasswdFile(struct user* currUser, char* newPassword)
+{
+   struct user* userList=getAllUsersFromPasswdFile();
+
+   struct user* tmpUser=userList;
+   while(tmpUser->next!=NULL) {
+      if(tmpUser->uid==currUser->uid) {
+         strcpy(tmpUser->password, newPassword);
+         break;
+      }
+
+      tmpUser=tmpUser->next;
+   }
+   
+   int fd=open("/etc/passwd",O_WRONLY);
+
+   while(userList!=NULL) {
+      char userString[192];
+      getStringFromUser(userList, userString);
+      write(fd, userString, strlen(userString));
+
+      userList=userList->next;
+   }
+
+   close(fd);
+}
+
 /*void addNewUserToPasswdFile(struct user* newUser)
 {
    struct user* userList=getAllUsersFromPasswdFile();
 
-   while(userList!=NULL)
-      userList=userList->next;
+   struct user* tmpUser=userList;
+   while(tmpUser->next!=NULL)
+      tmpUser=tmpUser->next;
    
-   userList->next=newUser;
+   tmpUser->next=newUser;
+
+   int fd=open("/etc/passwd",O_WRONLY);
+
+   char* test="test";
+   write(fd, test, strlen(test));
+   close(fd);
 
 }*/

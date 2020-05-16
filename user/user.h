@@ -48,5 +48,7 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
-char* strtok(char*, char*);
+char* strtok(char*, const char*);
 char* strcat(char*, const char*);
+char* itoa(int, char*, int);
+int abs(int);

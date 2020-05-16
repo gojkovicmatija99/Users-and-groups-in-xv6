@@ -18,6 +18,7 @@ struct group {
 };
 
 struct user* getUserFromString(char* userString);
+char* getStringFromUser(struct user* currUser, char userString[192]);
 struct user* createUser(char* homedir, char* uid, char* realname,char* username);
 struct user* addUserToList(struct user* userList, struct user* currUser);
 struct user* getAllUsersFromPasswdFile();
@@ -26,5 +27,8 @@ struct user* authenticateUser(char* username, char* password);
 void printEtcFile(char* file);
 int isUidAvailable(int uid);
 int getNextAvailableUid();
-void addNewUserToPasswdFile(newUser);
-char* getStringFromUser(struct user* currUser);
+//void addNewUserToPasswdFile(struct user* newUser);
+struct user* getUserFromUid(int uid);
+struct user* getUserFromUsername(char* username);
+int authenticateOldPassword(struct user* currUser, char* oldPassword);
+void updatePasswordForUserInPasswdFile(struct user* user, char* newPassword);
