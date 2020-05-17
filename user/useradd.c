@@ -52,8 +52,11 @@ main(int argc, char *argv[])
 		if(newUser==NULL) {
 			printf("Error while creating user!\n");
 		}
-		else
+		else 
 			addNewUser(newUser);
+
+		struct group* newGroup=createGroup(newUser->username, newUser->gid);
+		addNewGroup(newGroup);
 	}
 	exit();	
 }

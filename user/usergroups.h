@@ -14,18 +14,26 @@ struct user {
 struct group {
 	char groupname[32];
 	int gid;
-	struct user* users[64];
+	struct user* userList;
 	struct group* next;
 };
 
+//	Working with etc dir (passwd, group, issue, motd)
 struct user* selectAllUsersFromPasswdFile();
+struct group* selectAllGroupsFromGroupFile();
 void updatePasswdFile(struct user* userList);
+void updateGroupFile(struct group* groupList);
+void printEtcFile(char* file);
 
+// Working with lists
+struct user* addUserToList(struct user* userList, struct user* currUser);
+struct group* addGroupToList(struct group* groupList, struct group* currGroup);
+
+//	Working with users
 struct user* getUserFromString(char* userString);
 struct user* getUserFromUid(int uid);
 struct user* getUserFromUsername(char* username);
-struct user* createUser(char* homedir, char* uid, char* realname,char* username);
-struct user* addUserToList(struct user* userList, struct user* currUser);
+struct user* createUser(char* homedir, char* uid, char* realname, char* username);
 struct user* authenticateUser(char* username, char* password);
 int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser);
 int isUidAvailable(int uid);
@@ -33,5 +41,10 @@ int getNextAvailableUid();
 int authenticateOldPassword(struct user* currUser, char* oldPassword);
 void updatePasswordForUser(struct user* user, char* newPassword);
 void addNewUser(struct user* newUser);
-void printEtcFile(char* file);
-char* getStringFromUser(struct user* currUser, char* userString);
+void getStringFromUser(struct user* currUser, char* userString);
+
+//	Working with groups
+struct group* createGroup(char* groupname, int gid);
+struct group* getGroupFromString(char* groupString);
+void getStringFromGroup(struct group* currGroup, char* groupString);
+void addNewGroup(struct group* newGroup);
