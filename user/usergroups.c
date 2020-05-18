@@ -53,17 +53,14 @@ struct group* getGroupFromString(char* groupString) {
    strcpy(currGroup->groupname, tmp[0]);
    currGroup->gid=atoi(tmp[1]);
 
+   currGroup->userList=NULL;
    while(1) {             // parses users with delimiter ','
       int curr=0;
       while(groupString[curr+pnt]!=',' && groupString[curr+pnt]!='\0') {
          buf[curr]=groupString[curr+pnt];
          curr++;
       }
-      //NEEDS FIXING
-      if(groupString[curr+pnt]=='\0')
-         buf[curr-1]='\0';
-      else
-         buf[curr]='\0';
+       buf[curr]='\0';
       
       struct user* currUser=getUserFromUsername(buf);
       currGroup->userList=addUserToList(currGroup->userList, currUser);
@@ -88,9 +85,13 @@ void getStringFromGroup(struct group* currGroup, char* groupString)
    strcat(groupString, gidString);
    strcat(groupString, ":");
 
+   int isFirstUser=1;
    struct user* tmpUser=currGroup->userList;
    while(tmpUser!=NULL) {
-      strcat(groupString, ",");
+      if(!isFirstUser)
+         strcat(groupString, ",");
+      else
+         isFirstUser=0;
       strcat(groupString, tmpUser->username);
 
       tmpUser=tmpUser->next;
@@ -304,8 +305,10 @@ struct user* getUserFromUid(int uid)
    struct user* userList=selectAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
-      if(uid==userList->uid)
+      if(uid==userList->uid) {
+         userList->next=NULL;             // return only this user, not the whole list
          return userList;
+      }
 
       userList=userList->next;
    }
@@ -318,8 +321,10 @@ struct user* getUserFromUsername(char* username)
    struct user* userList=selectAllUsersFromPasswdFile();
 
    while(userList!=NULL) {
-      if(!strcmp(userList->username, username))
+      if(!strcmp(userList->username, username)) {
+         userList->next=NULL;          // return only this user, not the whole list
          return userList;
+      }
 
       userList=userList->next;
    }
