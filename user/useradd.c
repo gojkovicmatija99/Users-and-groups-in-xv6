@@ -19,14 +19,17 @@ int getPositionInArguments(char* command) {
 	return -1;
 }
 
-
 int parseCommandLineArguments(char arguments[4][64],int argc,char* argv[])
 {
+	if(argc<2)													// if no username is suplied, return error
+			return 0;
+
 	strcpy(arguments[3], argv[argc-1]);							// username is mandatory last argument
 
 	int i=1;
 	while(i<argc-1) {
 		int position=getPositionInArguments(argv[i]);			// get the command
+		i++;
  
 		if(position==-1)										// if command is not supported, return error
 			return 0;
@@ -44,9 +47,8 @@ main(int argc, char *argv[])
 	char arguments[4][64];
 
 	int valid=parseCommandLineArguments(arguments, argc, argv);
-	if(!valid) {
+	if(!valid)
 		printf("Error while creating user!\n");
-	}
 	else {
 		struct user* newUser=createUser(arguments[0], arguments[1], arguments[2], arguments[3]);
 		if(newUser==NULL) {
@@ -55,7 +57,9 @@ main(int argc, char *argv[])
 		else 
 			addNewUser(newUser);
 
-		struct group* newGroup=createGroup(newUser->username, newUser->gid);
+		char gidString[32];
+		itoa(newUser->gid, gidString, 10);
+		struct group* newGroup=createGroup(newUser->username, gidString, ADD_USER);
 		addNewGroup(newGroup);
 	}
 	exit();	

@@ -88,7 +88,7 @@ void getStringFromGroup(struct group* currGroup, char* groupString)
    int isFirstUser=1;
    struct user* tmpUser=currGroup->userList;
    while(tmpUser!=NULL) {
-      if(!isFirstUser)
+      if(!isFirstUser)                         // the first user doesn't have an ',' before it, other users do
          strcat(groupString, ",");
       else
          isFirstUser=0;
@@ -125,12 +125,12 @@ void getStringFromUser(struct user* currUser, char* userString)
    strcat(userString, "\n");
 }
 
-struct user* createUser(char* homedir, char* uidString, char* realname,char* username)
+struct user* createUser(char* homedir, char* uidString, char* realname, char* username)
 {
    struct user* newUser=(struct user*)malloc(sizeof(struct user));
 
    strcpy(newUser->homedir, "/home/");                    // all users are stored in "/home/"
-   if(!isEmptyString(homedir))                                   // if user has entered homedir
+   if(!isEmptyString(homedir))                            // if user has entered homedir
       strcat(newUser->homedir, homedir);
    else
       strcat(newUser->homedir, username);
@@ -138,7 +138,7 @@ struct user* createUser(char* homedir, char* uidString, char* realname,char* use
    if(mkdir(newUser->homedir)==-1)                       // if dir isn't created, return error
       return NULL;
 
-   if(!isEmptyString(uidString)) {                              // if user has entered uid
+   if(!isEmptyString(uidString)) {                       // if user has entered uid
       int uid=atoi(uidString);
       if(uid==0)                                               // if uidString isn't a number, return error
          return NULL;
@@ -157,7 +157,36 @@ struct user* createUser(char* homedir, char* uidString, char* realname,char* use
    strcpy(newUser->username, username);
 
    return newUser;
+}
 
+struct group* createGroup(char* groupname, char* gidString, int addUserWithSameGroupname)
+{
+   struct group* newGroup=(struct group*)malloc(sizeof(struct group));
+
+   strcpy(newGroup->groupname, groupname);
+   if(!isEmptyString(gidString)) {
+      int gid=atoi(gidString);                      // if user has entered gid
+      if(gid==0)                          
+         return NULL;                                    // if gidString isn't a number, return error
+      if(isGidAvailable(gid))                            // if gid isn't available, return error
+         newGroup->gid=gid;
+      else
+         return NULL;
+   }
+   else {
+      int gid=getNextAvailableGid();                // else get available gid that is greater than 1000
+      newGroup->gid=gid;
+   }
+   
+   if(addUserWithSameGroupname==ADD_USER) {
+      struct user* currUser=getUserFromUsername(groupname);
+      newGroup->userList=currUser;
+   }
+   else if(addUserWithSameGroupname==DONT_ADD_USER) {
+      newGroup->userList=NULL;
+   }
+
+   return newGroup;
 }
 
 struct user* addUserToList(struct user* userList, struct user* currUser)
@@ -285,6 +314,20 @@ int isUidAvailable(int uid)
    return 1;
 }
 
+int isGidAvailable(int gid)
+{
+   struct group* groupList=selectAllGroupsFromGroupFile();
+
+   while(groupList!=NULL) {
+      if(groupList->gid==gid)
+         return 0;
+
+      groupList=groupList->next;
+   }
+
+   return 1;
+}
+
 int getNextAvailableUid() 
 {
    struct user* userList=selectAllUsersFromPasswdFile();
@@ -298,6 +341,21 @@ int getNextAvailableUid()
    }
 
    return uid;
+}
+
+int getNextAvailableGid() 
+{
+   struct group* groupList=selectAllGroupsFromGroupFile();
+   int gid=1000;
+
+   while(groupList!=NULL) {
+      if(groupList->gid==gid)
+         gid++;
+
+      groupList=groupList->next;
+   }
+
+   return gid;
 }
 
 struct user* getUserFromUid(int uid)
@@ -411,17 +469,4 @@ void addNewGroup(struct group* newGroup)
    tmpGroup->next=newGroup;
 
    updateGroupFile(groupList);
-}
-
-struct group* createGroup(char* groupname, int gid)
-{
-   struct group* newGroup=(struct group*)malloc(sizeof(struct group));
-
-   strcpy(newGroup->groupname, groupname);
-   newGroup->gid=gid;
-   struct user* currUser=getUserFromUid(gid);
-   newGroup->userList=currUser;
-
-   return newGroup;
-
 }
