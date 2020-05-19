@@ -10,7 +10,7 @@ struct user {
 	int uid;
 	int gid;
 	char realname[32];
-	char homedir[64]; 
+	char homedir[32]; 
 	struct user* next;
 };
 
@@ -45,6 +45,8 @@ int getNextAvailableUid();
 void updatePasswordForUser(struct user* user, char* newPassword);
 void addNewUser(struct user* newUser);
 void getStringFromUser(struct user* currUser, char* userString);
+struct user* modifyUser(struct user* currUser, char* username, char* uidString, char* realname, char* homedir, char* m, char* groups, char* a);
+void updateUserInfo(struct user* currUser, struct user* modUser);
 
 //	Working with groups
 struct group* createGroup(char* groupname, char* gidString, int addUserWithSameGroupname);

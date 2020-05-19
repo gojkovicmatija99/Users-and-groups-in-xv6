@@ -7,8 +7,8 @@
 struct user* getUserFromString(char* userString)
 {
 	struct user* currUser=(struct user*)malloc(sizeof(struct user));
-	char tmp[6][64];	
-   char buf[64];
+	char tmp[6][32];	
+   char buf[32];
 
    int pnt=0;                 // pnt points to the absolute position in the string
    for(int i=0;i<6;i++) {     // parses user info with delimiter ':'
@@ -35,8 +35,8 @@ struct user* getUserFromString(char* userString)
 
 struct group* getGroupFromString(char* groupString) {
    struct group* currGroup=(struct group*)malloc(sizeof(struct group));
-   char tmp[13][64];
-   char buf[64];
+   char tmp[12][32];
+   char buf[32];
 
    int pnt=0;                 // pnt points to the absolute position in the string
    for(int i=0;i<2;i++) {     // parses group info with delimiter ':'
@@ -130,7 +130,7 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
    struct user* newUser=(struct user*)malloc(sizeof(struct user));
 
    strcpy(newUser->homedir, "/home/");                    // all users are stored in "/home/"
-   if(!isEmptyString(homedir))                            // if user has entered homedir
+   if(!isEmptyString(homedir))
       strcat(newUser->homedir, homedir);
    else
       strcat(newUser->homedir, username);
@@ -284,7 +284,7 @@ struct user* authenticateUser(char* username, char* password)
 
 void printEtcFile(char* file)
 {
-   char path[64];
+   char path[32];
    strcpy(path,"/etc/");
    strcat(path,file);
 
@@ -420,7 +420,7 @@ void updatePasswdFile(struct user* userList)
    int fd=open("/etc/passwd",O_WRONLY);
 
    while(userList!=NULL) {
-      char userString[192];
+      char userString[128];
       getStringFromUser(userList, userString);
       write(fd, userString, strlen(userString));
 
@@ -469,4 +469,63 @@ void addNewGroup(struct group* newGroup)
    tmpGroup->next=newGroup;
 
    updateGroupFile(groupList);
+}
+
+// NEED TO ADD OTHER OPTIONS
+struct user* modifyUser(struct user* currUser, char* username, char* uidString, char* realname, char* homedir, char* m, char* groups, char* a)
+{
+   struct user* modUser=(struct user*)malloc(sizeof(struct user));
+
+   strcpy(modUser->username, currUser->username);
+   strcpy(modUser->password, currUser->password);
+   modUser->uid=currUser->uid;
+   modUser->gid=currUser->gid;
+   strcpy(modUser->realname, currUser->realname);
+   strcpy(modUser->homedir, currUser->homedir);
+   modUser->next=NULL;
+
+   if(!isEmptyString(username)) {
+      if(getUserFromUsername(username)==NULL)               // check if username is available
+         strcpy(modUser->username, username);
+      else
+         return NULL;
+
+   }
+
+   if(!isEmptyString(uidString)) {
+      int uid=atoi(uidString);
+      if(uid==0)                                            // if uidString isn't a number, return error
+         return NULL;
+      if(isUidAvailable(uid))                               // if uid isn't available, return error
+         modUser->uid=uid;
+      else
+         return NULL;
+   }
+
+   if(!isEmptyString(realname))
+      strcpy(modUser, realname);
+
+   return modUser;
+}
+
+void updateUserInfo(struct user* currUser, struct user* modUser) {
+   struct user* userList=selectAllUsersFromPasswdFile();
+
+   struct user* tmpUser=userList;
+   while(tmpUser!=NULL) {
+      if(tmpUser->uid==currUser->uid) {
+         strcpy(tmpUser->username, modUser->username);
+         strcpy(tmpUser->password, modUser->password);
+         tmpUser->uid=modUser->uid;
+         tmpUser->gid=modUser->gid;
+         strcpy(tmpUser->realname, modUser->realname);
+         strcpy(tmpUser->homedir, modUser->homedir);
+         break;
+      }
+
+      tmpUser=tmpUser->next;
+   }
+   
+   updatePasswdFile(userList);
+   
 }

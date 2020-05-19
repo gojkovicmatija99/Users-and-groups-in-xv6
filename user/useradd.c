@@ -19,7 +19,7 @@ int getPositionInArguments(char* command) {
 	return -1;
 }
 
-int parseCommandLineArguments(char arguments[4][64],int argc,char* argv[])
+int parseCommandLineArguments(char arguments[4][32], int argc,char* argv[])
 {
 	if(argc<2)													// if no username is suplied, return error
 			return 0;
@@ -34,7 +34,7 @@ int parseCommandLineArguments(char arguments[4][64],int argc,char* argv[])
 		if(position==-1)										// if command is not supported, return error
 			return 0;
 
-		strcpy(arguments[position],argv[i]);
+		strcpy(arguments[position],argv[i]);					// get the command value
 		i++;
 	}
 
@@ -44,7 +44,7 @@ int parseCommandLineArguments(char arguments[4][64],int argc,char* argv[])
 int
 main(int argc, char *argv[])
 {
-	char arguments[4][64];
+	char arguments[4][32];
 
 	int valid=parseCommandLineArguments(arguments, argc, argv);
 	if(!valid)

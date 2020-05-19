@@ -210,6 +210,7 @@ UPROGS=\
 	$U/_sh\
 	$U/_stressfs\
 	$U/_useradd\
+	$U/_usermod\
 	$U/_usertests\
 	$U/_wc\
 	$U/_zombie\
