@@ -33,73 +33,6 @@ struct user* getUserFromString(char* userString)
    return currUser;
 }
 
-struct group* getGroupFromString(char* groupString) {
-   struct group* currGroup=(struct group*)malloc(sizeof(struct group));
-   char tmp[12][32];
-   char buf[32];
-
-   int pnt=0;                 // pnt points to the absolute position in the string
-   for(int i=0;i<2;i++) {     // parses group info with delimiter ':'
-      int curr=0;             // curr points to the relative position in the string
-      while(groupString[curr+pnt]!=':' && groupString[curr+pnt]!='\0') {
-         buf[curr]=groupString[curr+pnt];
-         curr++;
-      }
-      buf[curr]='\0';
-      strcpy(tmp[i],buf);
-      pnt+=curr+1;         // pnt points to where curr stoped + 1 to skip ':'
-   }
-
-   strcpy(currGroup->groupname, tmp[0]);
-   currGroup->gid=atoi(tmp[1]);
-
-   currGroup->userList=NULL;
-   while(1) {             // parses users with delimiter ','
-      int curr=0;
-      while(groupString[curr+pnt]!=',' && groupString[curr+pnt]!='\0') {
-         buf[curr]=groupString[curr+pnt];
-         curr++;
-      }
-       buf[curr]='\0';
-      
-      struct user* currUser=getUserFromUsername(buf);
-      currGroup->userList=addUserToList(currGroup->userList, currUser);
-      if(groupString[curr+pnt]=='\0')
-         break;
-      else
-         pnt+=curr+1;
-   }
-
-   currGroup->next=NULL;
-
-   return currGroup;
-}
-
-void getStringFromGroup(struct group* currGroup, char* groupString)
-{
-   strcpy(groupString, currGroup->groupname);
-   strcat(groupString, ":");
-
-   char gidString[32];
-   itoa(currGroup->gid, gidString, 10);
-   strcat(groupString, gidString);
-   strcat(groupString, ":");
-
-   int isFirstUser=1;
-   struct user* tmpUser=currGroup->userList;
-   while(tmpUser!=NULL) {
-      if(!isFirstUser)                         // the first user doesn't have an ',' before it, other users do
-         strcat(groupString, ",");
-      else
-         isFirstUser=0;
-      strcat(groupString, tmpUser->username);
-
-      tmpUser=tmpUser->next;
-   }
-
-   strcat(groupString, "\n");
-}
-
 void getStringFromUser(struct user* currUser, char* userString)
 {
    strcpy(userString, currUser->username);
@@ -159,36 +92,6 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
    return newUser;
 }
 
-struct group* createGroup(char* groupname, char* gidString, int addUserWithSameGroupname)
-{
-   struct group* newGroup=(struct group*)malloc(sizeof(struct group));
-
-   strcpy(newGroup->groupname, groupname);
-   if(!isEmptyString(gidString)) {
-      int gid=atoi(gidString);                      // if user has entered gid
-      if(gid==0)                          
-         return NULL;                                    // if gidString isn't a number, return error
-      if(isGidAvailable(gid))                            // if gid isn't available, return error
-         newGroup->gid=gid;
-      else
-         return NULL;
-   }
-   else {
-      int gid=getNextAvailableGid();                // else get available gid that is greater than 1000
-      newGroup->gid=gid;
-   }
-   
-   if(addUserWithSameGroupname==ADD_USER) {
-      struct user* currUser=getUserFromUsername(groupname);
-      newGroup->userList=currUser;
-   }
-   else if(addUserWithSameGroupname==DONT_ADD_USER) {
-      newGroup->userList=NULL;
-   }
-
-   return newGroup;
-}
-
 struct user* addUserToList(struct user* userList, struct user* currUser)
 {
    if(userList==NULL)
@@ -202,28 +105,15 @@ struct user* addUserToList(struct user* userList, struct user* currUser)
    return userList;
 }
 
-struct group* addGroupToList(struct group* groupList, struct group* currGroup)
-{
-   if(groupList==NULL)
-      return currGroup;
-
-   struct group* tmpGroup=groupList;
-   while(tmpGroup->next!=NULL)
-      tmpGroup=tmpGroup->next;
-
-   tmpGroup->next=currGroup;
-   return groupList;
-}
-
 struct user* selectAllUsersFromPasswdFile()
 {  
    struct user* userList=NULL;
 
-	int fd=open("/etc/passwd",O_RDONLY);
-	int size=fsize(fd);
-	char fileContent[size];
+   int fd=open("/etc/passwd",O_RDONLY);
+   int size=fsize(fd);
+   char fileContent[size];
 
-	read(fd,fileContent,size);
+   read(fd,fileContent,size);
 
    char* token = strtok(fileContent, "\n");
    while( token != NULL ) {
@@ -235,28 +125,6 @@ struct user* selectAllUsersFromPasswdFile()
 
    close(fd);
    return userList;
-}
-
-struct group* selectAllGroupsFromGroupFile()
-{
-   struct group* groupList=NULL;
-
-   int fd=open("/etc/group",O_RDONLY);
-   int size=fsize(fd);
-   char fileContent[size];
-
-   read(fd,fileContent,size);
-
-   char* token = strtok2(fileContent, "\n");
-   while( token != NULL ) {
-      struct group* currGroup=getGroupFromString(token);
-      groupList=addGroupToList(groupList, currGroup);
-
-      token = strtok2(NULL, "\n");
-   }
-
-   close(fd);
-   return groupList;
 }
 
 int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser)
@@ -282,24 +150,6 @@ struct user* authenticateUser(char* username, char* password)
    return NULL;
 }
 
-void printEtcFile(char* file)
-{
-   char path[32];
-   strcpy(path,"/etc/");
-   strcat(path,file);
-
-   int fd=open(path,O_RDONLY);
-
-   if(fd!=-1) {
-      int size=fsize(fd);
-      char fileContent[size];
-
-      read(fd,fileContent,size);
-      printf("%s\n", fileContent);
-   }
-   
-}
-
 int isUidAvailable(int uid)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
@@ -309,20 +159,6 @@ int isUidAvailable(int uid)
          return 0;
 
       userList=userList->next;
-   }
-
-   return 1;
-}
-
-int isGidAvailable(int gid)
-{
-   struct group* groupList=selectAllGroupsFromGroupFile();
-
-   while(groupList!=NULL) {
-      if(groupList->gid==gid)
-         return 0;
-
-      groupList=groupList->next;
    }
 
    return 1;
@@ -341,21 +177,6 @@ int getNextAvailableUid()
    }
 
    return uid;
-}
-
-int getNextAvailableGid() 
-{
-   struct group* groupList=selectAllGroupsFromGroupFile();
-   int gid=1000;
-
-   while(groupList!=NULL) {
-      if(groupList->gid==gid)
-         gid++;
-
-      groupList=groupList->next;
-   }
-
-   return gid;
 }
 
 struct user* getUserFromUid(int uid)
@@ -404,7 +225,7 @@ void updatePasswordForUser(struct user* currUser, char* newPassword)
 
    struct user* tmpUser=userList;
    while(tmpUser!=NULL) {
-      if(tmpUser->uid==currUser->uid) {
+      if(!compareUsers(tmpUser, currUser)) {
          strcpy(tmpUser->password, newPassword);
          break;
       }
@@ -417,6 +238,9 @@ void updatePasswordForUser(struct user* currUser, char* newPassword)
 
 void updatePasswdFile(struct user* userList)
 {
+   unlink("/etc/passwd");
+
+   open("/etc/passwd",O_CREATE);
    int fd=open("/etc/passwd",O_WRONLY);
 
    while(userList!=NULL) {
@@ -428,45 +252,49 @@ void updatePasswdFile(struct user* userList)
    }
 
    close(fd);
+
 }
 
-void updateGroupFile(struct group* groupList)
+int compareUsers(struct user* user1, struct user* user2)
 {
-   int fd=open("/etc/group",O_WRONLY);
-
-   while(groupList!=NULL) {
-      char groupString[512];
-      getStringFromGroup(groupList, groupString);
-      write(fd, groupString, strlen(groupString));
-
-      groupList=groupList->next;
-   }
-
-   close(fd);
+   if(user1->uid>user2->uid) return 1;
+   if(user1->uid<user2->uid) return -1;
+   return 0;
 }
 
 void addNewUser(struct user* newUser)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
-
-   struct user* tmpUser=userList;
-   while(tmpUser->next!=NULL)
-      tmpUser=tmpUser->next;
-   
-   tmpUser->next=newUser;
-
+   userList=addUserToList(userList, newUser);
    updatePasswdFile(userList);
 }
 
-void addNewGroup(struct group* newGroup)
+int isUserInGroup(struct user* currUser, struct group* currGroup) 
+{
+   struct user* userList=currGroup->userList;
+   while(userList!=NULL) {
+      if(!compareUsers(userList, currUser))
+         return 1;
+
+      userList=userList->next;
+   }
+
+   return 0;
+}
+
+void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
 {
    struct group* groupList=selectAllGroupsFromGroupFile();
 
    struct group* tmpGroup=groupList;
-   while(tmpGroup->next!=NULL)
-      tmpGroup=tmpGroup->next;
+   while(tmpGroup!=NULL || groupsToAddUser!=NULL) {
+      if(!compareGroups(groupsToAddUser, tmpGroup) && !isUserInGroup(currUser, tmpGroup)) {
+         tmpGroup->userList=addUserToList(tmpGroup->userList, currUser);
+         groupsToAddUser=groupsToAddUser->next;
+      }
 
-   tmpGroup->next=newGroup;
+      tmpGroup=tmpGroup->next;
+   }
 
    updateGroupFile(groupList);
 }
@@ -489,7 +317,6 @@ struct user* modifyUser(struct user* currUser, char* username, char* uidString, 
          strcpy(modUser->username, username);
       else
          return NULL;
-
    }
 
    if(!isEmptyString(uidString)) {
@@ -504,6 +331,14 @@ struct user* modifyUser(struct user* currUser, char* username, char* uidString, 
 
    if(!isEmptyString(realname))
       strcpy(modUser, realname);
+
+   if(!isEmptyString(groups)) {
+      //if(isEmptyString(a))
+      //   removeUserFromAllGroups(currUser);
+
+      struct group* groupsToAddUser=getMultipleGroupsFromString(groups);
+      addUserToGroups(groupsToAddUser, currUser);
+   }
 
    return modUser;
 }
