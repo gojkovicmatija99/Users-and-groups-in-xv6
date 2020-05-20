@@ -92,15 +92,21 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
    return newUser;
 }
 
-struct user* addUserToList(struct user* userList, struct user* currUser)
+struct user* addUserToListSorted(struct user* userList, struct user* currUser)
 {
    if(userList==NULL)
       return currUser;
 
+   if(compareUsers(userList, currUser)>0) {
+      currUser->next=userList;
+      return currUser;
+   }
+
    struct user* tmpUser=userList;
-   while(tmpUser->next!=NULL)
+   while(tmpUser->next!=NULL && (compareUsers(tmpUser->next, currUser)<=0))
       tmpUser=tmpUser->next;
 
+   currUser->next=tmpUser->next;
    tmpUser->next=currUser;
    return userList;
 }
@@ -118,7 +124,7 @@ struct user* selectAllUsersFromPasswdFile()
    char* token = strtok(fileContent, "\n");
    while( token != NULL ) {
       struct user* currUser=getUserFromString(token);
-      userList=addUserToList(userList, currUser);
+      userList=addUserToListSorted(userList, currUser);
 
       token = strtok(NULL, "\n");
    }
@@ -265,33 +271,51 @@ int compareUsers(struct user* user1, struct user* user2)
 void addNewUser(struct user* newUser)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
-   userList=addUserToList(userList, newUser);
+   userList=addUserToListSorted(userList, newUser);
    updatePasswdFile(userList);
 }
 
-int isUserInGroup(struct user* currUser, struct group* currGroup) 
-{
-   struct user* userList=currGroup->userList;
-   while(userList!=NULL) {
-      if(!compareUsers(userList, currUser))
-         return 1;
-
-      userList=userList->next;
-   }
-
-   return 0;
-}
-
+// WARNING: Users can be aded to the same group multiple times
 void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
 {
    struct group* groupList=selectAllGroupsFromGroupFile();
 
    struct group* tmpGroup=groupList;
-   while(tmpGroup!=NULL || groupsToAddUser!=NULL) {
-      if(!compareGroups(groupsToAddUser, tmpGroup) && !isUserInGroup(currUser, tmpGroup)) {
-         tmpGroup->userList=addUserToList(tmpGroup->userList, currUser);
+   while(tmpGroup!=NULL && groupsToAddUser!=NULL) {
+      if(!compareGroups(groupsToAddUser, tmpGroup)) {
+         tmpGroup->userList=addUserToListSorted(tmpGroup->userList, currUser);
          groupsToAddUser=groupsToAddUser->next;
       }
+
+      tmpGroup=tmpGroup->next;
+   }
+
+   updateGroupFile(groupList);
+}
+
+struct user* removeUserFromCurrGroup(struct group* currGroup, struct user* currUser)
+{
+   if(!compareUsers(currGroup->userList, currUser))
+      return currGroup->userList->next;
+
+   struct user* tmpUser=currGroup->userList;
+   while(tmpUser->next!=NULL) {
+      if(!compareUsers(tmpUser->next, currUser))
+         tmpUser->next=tmpUser->next->next;
+
+      tmpUser=tmpUser->next;
+   }
+
+   return currGroup->userList;
+}
+
+void removeUserFromAllGroups(struct user* currUser)
+{
+   struct group* groupList=selectAllGroupsFromGroupFile();
+
+   struct group* tmpGroup=groupList;
+   while(tmpGroup!=NULL) {
+      tmpGroup->userList=removeUserFromCurrGroup(tmpGroup, currUser);
 
       tmpGroup=tmpGroup->next;
    }
@@ -330,11 +354,11 @@ struct user* modifyUser(struct user* currUser, char* username, char* uidString, 
    }
 
    if(!isEmptyString(realname))
-      strcpy(modUser, realname);
+      strcpy(modUser->realname, realname);
 
    if(!isEmptyString(groups)) {
-      //if(isEmptyString(a))
-      //   removeUserFromAllGroups(currUser);
+      if(isEmptyString(a))
+         removeUserFromAllGroups(currUser);
 
       struct group* groupsToAddUser=getMultipleGroupsFromString(groups);
       addUserToGroups(groupsToAddUser, currUser);

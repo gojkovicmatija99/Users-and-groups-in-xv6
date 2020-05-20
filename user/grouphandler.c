@@ -35,7 +35,7 @@ struct group* getGroupFromString(char* groupString)
        buf[curr]='\0';
       
       struct user* currUser=getUserFromUsername(buf);
-      currGroup->userList=addUserToList(currGroup->userList, currUser);
+      currGroup->userList=addUserToListSorted(currGroup->userList, currUser);
       if(groupString[curr+pnt]=='\0')
          break;
       else
@@ -127,19 +127,6 @@ struct group* addGroupToListSorted(struct group* groupList, struct group* currGr
    	tmpGroup->next=currGroup;
    	return groupList;
 }
-
-/*struct group* addGroupToList(struct group* groupList, struct group* currGroup)
-{
-   if(groupList==NULL)
-      return currGroup;
-
-   struct group* tmpGroup=groupList;
-   while(tmpGroup->next!=NULL)
-      tmpGroup=tmpGroup->next;
-
-   tmpGroup->next=currGroup;
-   return groupList;
-}*/
 
 struct group* selectAllGroupsFromGroupFile()
 {

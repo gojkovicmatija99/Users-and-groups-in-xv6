@@ -1,6 +1,6 @@
 root:0:root
+admin:1:root,ken
+users:2:ken,dmr,bwk
 ken:1000:ken
 dmr:1001:dmr
 bwk:1002:bwk
-admin:1:root,ken
-users:2:ken,dmr,bwk

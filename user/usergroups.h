@@ -34,7 +34,7 @@ struct user* getUserFromUid(int uid);
 struct user* getUserFromUsername(char* username);
 struct user* createUser(char* homedir, char* uid, char* realname, char* username);
 struct user* authenticateUser(char* username, char* password);
-struct user* addUserToList(struct user* userList, struct user* currUser);
+struct user* addUserToListSorted(struct user* userList, struct user* currUser);
 int checkUsernamePasswordForCurrUser(char* username, char* password, struct user* currUser);
 struct user* modifyUser(struct user* currUser, char* username, char* uidString, char* realname, char* homedir, char* m, char* groups, char* a);
 int authenticateOldPassword(struct user* currUser, char* oldPassword);
@@ -44,8 +44,11 @@ void updatePasswordForUser(struct user* user, char* newPassword);
 void getStringFromUser(struct user* currUser, char* userString);
 void updateUserInfo(struct user* currUser, struct user* modUser);
 void addUserToGroups(struct group* groupsToAddUser, struct user* currUser);
+void addNewUser(struct user* newUser);
 int isUserInGroup(struct user* currUser, struct group* currGroup);
 int compareUsers(struct user* user1, struct user* user2);
+void removeUserFromAllGroups(struct user* currUser);
+struct user* removeUserFromGroup(struct group* currGroup, struct user* currUser);
 
 //	Working with groups
 struct group* createGroup(char* groupname, char* gidString, int addUserWithSameGroupname);
