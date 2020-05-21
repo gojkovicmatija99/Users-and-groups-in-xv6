@@ -8,4 +8,7 @@ struct stat {
 	uint ino;    // Inode number
 	short nlink; // Number of links to file
 	uint size;   // Size of file in bytes
+	uint uid;	 // User id
+	uint gid;	 // Group id
+	uint mode;	 // Read, write, execute
 };

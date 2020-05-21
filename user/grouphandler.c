@@ -228,7 +228,7 @@ struct group* getGroupFromGroupname(char* groupname)
 
 	while(groupList!=NULL) {
 		if(!strcmp(groupList->groupname, groupname)) {
-			groupList->next=NULL;
+			groupList->next=NULL;               // return only this group, not the whole list
 			return groupList;
 		}
 
@@ -236,6 +236,22 @@ struct group* getGroupFromGroupname(char* groupname)
 	}
 
 	return NULL;
+}
+
+struct group* getGroupFromGid(int gid)
+{
+   struct group* groupList=selectAllGroupsFromGroupFile();
+
+   while(groupList!=NULL) {
+      if(gid==groupList->gid) {
+         groupList->next=NULL;               // return only this group, not the whole list
+         return groupList;
+      }
+
+      groupList=groupList->next;
+   }
+
+   return NULL;
 }
 
 struct group* getMultipleGroupsFromString(char* groupsString) 
@@ -261,4 +277,36 @@ struct group* getMultipleGroupsFromString(char* groupsString)
          pnt+=curr+1;
    }
    return groupList;
+}
+
+char* getPermisionsString(int permisions, short type, char* permisionsString)
+{
+   if(type==T_DIR)
+      strcpy(permisionsString, "d");
+   else
+      strcpy(permisionsString, "-");
+
+   for(int i=2;i>=0;i--) {
+      int bitMask=7 << i*3;
+      int bitGroup=bitMask & permisions;
+      bitGroup=bitGroup >> i*3;
+
+      if(bitGroup & READ)
+         strcat(permisionsString, "r");
+      else
+         strcat(permisionsString, "-");
+
+      if(bitGroup & WRITE)
+         strcat(permisionsString, "w");
+      else
+         strcat(permisionsString, "-");
+
+      if(bitGroup & EXECUTE)
+         strcat(permisionsString, "x");
+      else
+         strcat(permisionsString, "-");
+   }
+
+   permisionsString[10]='\0';
+   return permisionsString;
 }

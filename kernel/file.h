@@ -16,9 +16,9 @@ struct inode {
 	int ref;            // Reference count
 	struct sleeplock lock; // protects everything below here
 	int valid;          // inode has been read from disk?
-	int uid;			// user id
-	int gid;			//group id
-	int mode;			//read, write, execute
+	uint uid;			// user id
+	uint gid;			// group id
+	uint mode;			// read, write, execute
 
 	short type;         // copy of disk inode
 	short major;

@@ -1,6 +1,7 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user.h"
+#include "usergroups.h"
 #include "kernel/fs.h"
 
 char*
@@ -63,7 +64,12 @@ ls(char *path)
 				printf("ls: cannot stat %s\n", buf);
 				continue;
 			}
-			printf("%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
+			struct user* fileOwner=getUserFromUid(0);
+			struct group* groupOwner=getGroupFromGid(1000);
+			char permisionsString[10];
+			getPermisionsString(0644, st.type, permisionsString);
+
+			printf("%s %d %s %s %d %s\n",permisionsString, st.type, fileOwner->username, groupOwner->groupname, st.size, fmtname(buf));
 		}
 		break;
 	}
