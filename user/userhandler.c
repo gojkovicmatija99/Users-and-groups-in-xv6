@@ -258,7 +258,6 @@ void updatePasswdFile(struct user* userList)
    }
 
    close(fd);
-
 }
 
 int compareUsers(struct user* user1, struct user* user2)
@@ -275,7 +274,22 @@ void addNewUser(struct user* newUser)
    updatePasswdFile(userList);
 }
 
-// WARNING: Users can be aded to the same group multiple times
+/*int isUserInGroup(struct user* currUser, struct group* currGroup) 
+{
+   if(currGroup->userList==NULL)
+      return 0;
+
+   struct user* userList=currGroup->userList;
+   while(userList!=NULL) {
+      if(!compareUsers(userList, currUser))
+         return 1;
+
+      userList=userList->next;
+   }
+
+   return 0;
+}*/
+
 void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
 {
    struct group* groupList=selectAllGroupsFromGroupFile();
@@ -295,6 +309,12 @@ void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
 
 struct user* removeUserFromCurrGroup(struct group* currGroup, struct user* currUser)
 {
+   if(currGroup->userList==NULL)
+      return NULL;
+
+   if(!strcmp(currGroup->groupname, currUser->username))             // if this group is the users default group, exit
+      return currGroup->userList;
+
    if(!compareUsers(currGroup->userList, currUser))
       return currGroup->userList->next;
 

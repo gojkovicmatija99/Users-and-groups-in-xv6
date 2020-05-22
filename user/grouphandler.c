@@ -95,9 +95,8 @@ struct group* createGroup(char* groupname, char* gidString, int addUserWithSameG
       struct user* currUser=getUserFromUsername(groupname);
       newGroup->userList=currUser;
    }
-   else if(addUserWithSameGroupname==DONT_ADD_USER) {
+   else if(addUserWithSameGroupname==DONT_ADD_USER)
       newGroup->userList=NULL;
-   }
 
    return newGroup;
 }
@@ -114,18 +113,18 @@ struct group* addGroupToListSorted(struct group* groupList, struct group* currGr
    if(groupList==NULL)
    		return currGroup;
 
-   	if(compareGroups(groupList, currGroup)>0) {
-   		currGroup->next=groupList;
-   		return currGroup;
-   	}
+   if(compareGroups(groupList, currGroup)>0) {
+   	currGroup->next=groupList;
+   	return currGroup;
+   }
 
-   	struct group* tmpGroup=groupList;
-   	while(tmpGroup->next!=NULL && (compareGroups(tmpGroup->next, currGroup)<=0))
-   		tmpGroup=tmpGroup->next;
+   struct group* tmpGroup=groupList;
+   while(tmpGroup->next!=NULL && (compareGroups(tmpGroup->next, currGroup)<=0))
+   	tmpGroup=tmpGroup->next;
 
-   	currGroup->next=tmpGroup->next;
-   	tmpGroup->next=currGroup;
-   	return groupList;
+   currGroup->next=tmpGroup->next;
+   tmpGroup->next=currGroup;
+   return groupList;
 }
 
 struct group* selectAllGroupsFromGroupFile()

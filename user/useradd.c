@@ -19,7 +19,7 @@ int getPositionInArguments(char* command) {
 	return -1;
 }
 
-int parseCommandLineArguments(char arguments[4][32], int argc,char* argv[])
+int parseCommandLineArguments(char arguments[4][32], int argc, char* argv[])
 {
 	if(argc<2)													// if no username is suplied, return error
 			return 0;
