@@ -64,10 +64,10 @@ ls(char *path)
 				printf("ls: cannot stat %s\n", buf);
 				continue;
 			}
-			struct user* fileOwner=getUserFromUid(0);
-			struct group* groupOwner=getGroupFromGid(1000);
+			struct user* fileOwner=getUserFromUid(st.uid);
+			struct group* groupOwner=getGroupFromGid(st.gid);
 			char permisionsString[10];
-			getPermisionsString(0644, st.type, permisionsString);
+			getPermisionsString(st.mode, st.type, permisionsString);
 
 			printf("%s %d %s %s %d %s\n",permisionsString, st.type, fileOwner->username, groupOwner->groupname, st.size, fmtname(buf));
 		}

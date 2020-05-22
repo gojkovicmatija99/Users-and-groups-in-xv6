@@ -302,6 +302,8 @@ ilock(struct inode *ip)
 		ip->minor = dip->minor;
 		ip->nlink = dip->nlink;
 		ip->size = dip->size;
+		ip->uid = dip->uid;
+		ip->gid = dip->gid;
 		memmove(ip->addrs, dip->addrs, sizeof(ip->addrs));
 		brelse(bp);
 		ip->valid = 1;
