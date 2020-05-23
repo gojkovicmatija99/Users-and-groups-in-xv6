@@ -384,6 +384,14 @@ struct user* modifyUser(struct user* currUser, char* username, char* uidString, 
       addUserToGroups(groupsToAddUser, currUser);
    }
 
+   if(!isEmptyString(homedir)) {
+      strcpy(modUser->homedir, "/home/");
+      strcat(modUser->homedir, homedir);
+
+      if(mkdir(modUser->homedir)==-1)                       // if dir isn't created, return error
+      return NULL;
+   }
+
    return modUser;
 }
 
