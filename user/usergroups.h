@@ -25,8 +25,6 @@ struct group {
 	struct group* next;
 };
 
-char* getPermisionsString(int permisions, short type, char* permisionsString);
-
 //	Working with etc dir (passwd, group, issue, motd)
 struct user* selectAllUsersFromPasswdFile();
 struct group* selectAllGroupsFromGroupFile();
@@ -67,3 +65,6 @@ void addNewGroup(struct group* newGroup);
 int isGidAvailable(int gid);
 int getNextAvailableGid();
 int compareGroups(struct group* group1, struct group* group2);
+
+//	Working with permision
+char* getPermisionsString(int permisions, short type, char* permisionsString);

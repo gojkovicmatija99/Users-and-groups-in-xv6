@@ -116,6 +116,25 @@ sys_fstat(void)
 	return filestat(f, st);
 }
 
+int sys_chmod(void)
+{
+	char* path;
+	int mode;
+
+	if(argstr(0, &path) < 0 || argint(1,&mode)<0)
+		return -1;
+
+	struct proc* currProc=myproc();
+	struct inode* ip=namei(path);
+	if(currProc->uid!=ip->uid && currProc->uid!=ROOT) {
+		cprintf("Permision denied!\n");
+		return -1;
+	}
+
+	ip->mode=mode;
+	return 1;
+}
+
 // Create the path new as a link to the same inode as old.
 int
 sys_link(void)
@@ -445,9 +464,11 @@ sys_pipe(void)
 	return 0;
 }
 
-int sys_fsize() {
+int sys_fsize() 
+{
 	struct file *fd;
-	argfd(0,0,&fd);
+	if(argfd(0,0,&fd) < 0)
+		return -1;
 
 	return fd->ip->size;
 }

@@ -108,12 +108,13 @@ int sys_setuid()
 		return -1;
 
 	struct proc* currProc=myproc();
-	if(currProc->uid==ROOT) {
-		currProc->uid=uid;
-		currProc->euid=uid;
-	}
-	else
+	if(currProc->uid!=ROOT) {
 		cprintf("Permision denied!\n");
-
+		return -1;
+	}
+		
+	currProc->uid=uid;
+	currProc->euid=uid;
+		
 	return 1;
 }

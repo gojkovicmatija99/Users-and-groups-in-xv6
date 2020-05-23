@@ -174,7 +174,7 @@ tags: $(OBJS) $K/entryother.S $U/_init
 $K/vectors.S: $T/vectors.pl
 	$T/vectors.pl > $K/vectors.S
 
-ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o $U/userhandler.o $U/grouphandler.o 
+ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o $U/userhandler.o $U/grouphandler.o $U/permisionhandler.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -195,6 +195,7 @@ $T/mkfs: $T/mkfs.c $K/fs.h
 
 UPROGS=\
 	$U/_cat\
+	$U/_chmod\
 	$U/_echo\
 	$U/_forktest\
 	$U/_getty\
@@ -211,7 +212,6 @@ UPROGS=\
 	$U/_stressfs\
 	$U/_useradd\
 	$U/_usermod\
-	$U/_usertests\
 	$U/_wc\
 	$U/_zombie\
 

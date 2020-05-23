@@ -10,6 +10,7 @@
 #include "kernel/fs.h"
 #include "kernel/stat.h"
 #include "kernel/param.h"
+#include "user/usergroups.h"
 
 #ifndef static_assert
 #define static_assert(a, b) do { switch (0) case 0: case (a): ; } while (0)
@@ -45,7 +46,7 @@ void winode(uint, struct dinode*);
 void rinode(uint inum, struct dinode *ip);
 void rsect(uint sec, void *buf);
 uint ialloc(ushort type);
-void iappend(uint inum, void *p, int n);
+void iappend(uint inum, void *p, int n, int uid, int gid);
 
 // convert to intel byte order
 ushort
@@ -86,32 +87,63 @@ void getHomeDir(char* line)			// doesn't have a return type because strtok modif
 	}
 }
 
+struct user* getUserFromString(char* userString)
+{
+	struct user* currUser=(struct user*)malloc(sizeof(struct user));
+	char tmp[6][32];	
+   char buf[32];
+
+   int pnt=0;                 // pnt points to the absolute position in the string
+   for(int i=0;i<6;i++) {     // parses user info with delimiter ':'
+      int curr=0;             // curr points to the relative position in the string
+      while(userString[curr+pnt]!=':' && userString[curr+pnt]!='\0') {
+         buf[curr]=userString[curr+pnt];
+         curr++;
+      }
+      buf[curr]='\0';
+      strcpy(tmp[i],buf);
+      pnt+=curr+1;         // pnt points to where curr stoped + 1 to skip ':'
+   }
+   
+   strcpy(currUser->username,tmp[0]);
+   strcpy(currUser->password,tmp[1]);
+   currUser->uid=atoi(tmp[2]);
+   currUser->gid=atoi(tmp[3]);
+   strcpy(currUser->realname,tmp[4]);
+   strcpy(currUser->homedir,tmp[5]);
+   currUser->next=NULL;
+
+   return currUser;
+}
+
 void makeUserHomeDirs(struct dirent de)
 {
 	FILE* file=fopen("passwd","r");
 	char line[192];
 	uint tmpino;
+	struct user* tmpUser;
 
 	while(fgets(line, sizeof(line), file) != NULL) {
-		line[strlen(line)-1]='\0';			// remove new line			
-		getHomeDir(line);						
-		tmpino=ialloc(T_DIR);
+		line[strlen(line)-1]='\0';			// remove new line				
+		tmpUser=getUserFromString(line);
+		getHomeDir(line);
 
+		tmpino=ialloc(T_DIR);
 		if(strcmp(line, "root")) {			// if homedir is "root", don't create it because it is already in system
 			bzero(&de, sizeof(de));
 			de.inum = xshort(tmpino);
 			strcpy(de.name, ".");
-			iappend(tmpino, &de, sizeof(de));
+			iappend(tmpino, &de, sizeof(de), ROOT, ROOT);
 
 			bzero(&de, sizeof(de));
 			de.inum = xshort(homeino);
 			strcpy(de.name, "..");
-			iappend(tmpino, &de, sizeof(de));
+			iappend(tmpino, &de, sizeof(de), tmpUser->uid, tmpUser->gid);
 
 			bzero(&de, sizeof(de));
 			de.inum = xshort(tmpino);
 			strcpy(de.name, line);
-			iappend(homeino, &de, sizeof(de));
+			iappend(homeino, &de, sizeof(de), ROOT, ROOT);
 		}
 		
 	}
@@ -132,12 +164,12 @@ makedirs(void)
 	bzero(&de, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, ".");
-	iappend(rootino, &de, sizeof(de));
+	iappend(rootino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, "..");
-	iappend(rootino, &de, sizeof(de));
+	iappend(rootino, &de, sizeof(de), ROOT, ROOT);
 
 	// /dev
 	devino = ialloc(T_DIR);
@@ -145,17 +177,17 @@ makedirs(void)
 	bzero(&de, sizeof(de));
 	de.inum = xshort(devino);
 	strcpy(de.name, ".");
-	iappend(devino, &de, sizeof(de));
+	iappend(devino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, "..");
-	iappend(devino, &de, sizeof(de));
+	iappend(devino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(devino);
 	strcpy(de.name, "dev");
-	iappend(rootino, &de, sizeof(de));
+	iappend(rootino, &de, sizeof(de), ROOT, ROOT);
 
 	// /bin
 	binino = ialloc(T_DIR);
@@ -163,17 +195,17 @@ makedirs(void)
 	bzero(&de, sizeof(de));
 	de.inum = xshort(binino);
 	strcpy(de.name, ".");
-	iappend(binino, &de, sizeof(de));
+	iappend(binino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, "..");
-	iappend(binino, &de, sizeof(de));
+	iappend(binino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(binino);
 	strcpy(de.name, "bin");
-	iappend(rootino, &de, sizeof(de));
+	iappend(rootino, &de, sizeof(de), ROOT, ROOT);
 
 	// /home
 	homeino = ialloc(T_DIR);
@@ -181,17 +213,17 @@ makedirs(void)
 	bzero(&de, sizeof(de));
 	de.inum = xshort(homeino);
 	strcpy(de.name, ".");
-	iappend(homeino, &de, sizeof(de));
+	iappend(homeino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, "..");
-	iappend(homeino, &de, sizeof(de));
+	iappend(homeino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(homeino);
 	strcpy(de.name, "home");
-	iappend(rootino, &de, sizeof(de));
+	iappend(rootino, &de, sizeof(de), ROOT, ROOT);
 
 	// /home/root
 	homeRootino = ialloc(T_DIR);
@@ -199,17 +231,17 @@ makedirs(void)
 	bzero(&de, sizeof(de));
 	de.inum = xshort(homeRootino);
 	strcpy(de.name, ".");
-	iappend(homeRootino, &de, sizeof(de));
+	iappend(homeRootino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(homeino);
 	strcpy(de.name, "..");
-	iappend(homeRootino, &de, sizeof(de));
+	iappend(homeRootino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(homeRootino);
 	strcpy(de.name, "root");
-	iappend(homeino, &de, sizeof(de));
+	iappend(homeino, &de, sizeof(de), ROOT, ROOT);
 
 	// /etc
 	etcino = ialloc(T_DIR);
@@ -217,17 +249,17 @@ makedirs(void)
 	bzero(&de, sizeof(de));
 	de.inum = xshort(etcino);
 	strcpy(de.name, ".");
-	iappend(etcino, &de, sizeof(de));
+	iappend(etcino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, "..");
-	iappend(etcino, &de, sizeof(de));
+	iappend(etcino, &de, sizeof(de), ROOT, ROOT);
 
 	bzero(&de, sizeof(de));
 	de.inum = xshort(etcino);
 	strcpy(de.name, "etc");
-	iappend(rootino, &de, sizeof(de));
+	iappend(rootino, &de, sizeof(de), ROOT, ROOT);
 
 	makeUserHomeDirs(de);
 }
@@ -328,10 +360,10 @@ main(int argc, char *argv[])
 		bzero(&de, sizeof(de));
 		de.inum = xshort(inum);
 		strncpy(de.name, shortname, DIRSIZ);
-		iappend(dirino, &de, sizeof(de));
+		iappend(dirino, &de, sizeof(de), ROOT, ROOT);
 
 		while((cc = read(fd, buf, sizeof(buf))) > 0)
-			iappend(inum, buf, cc);
+			iappend(inum, buf, cc, ROOT, ROOT);
 
 		close(fd);
 	}
@@ -427,7 +459,7 @@ balloc(int used)
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void
-iappend(uint inum, void *xp, int n)
+iappend(uint inum, void *xp, int n, int uid, int gid)
 {
 	char *p = (char*)xp;
 	uint fbn, off, n1;
@@ -466,6 +498,8 @@ iappend(uint inum, void *xp, int n)
 		off += n1;
 		p += n1;
 	}
+	din.uid=uid;
+	din.gid=gid;
 	din.size = xint(off);
 	winode(inum, &din);
 }
