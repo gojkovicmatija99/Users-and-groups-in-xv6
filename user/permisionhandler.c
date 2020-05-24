@@ -85,7 +85,7 @@ int convertStringToMode(char* modeString, int oldMode)
 			bitMask=bitMask | permBit;
 		}
 		else
-			bitMask=permBit << shift*3;			// else only for one bit group
+			bitMask=permBit << shift*3;			// else only for add permBit to one bit group
 
 	char op=modeString[1];
 	if(op=='+') 

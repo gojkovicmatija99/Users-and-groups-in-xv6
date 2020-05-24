@@ -36,26 +36,31 @@ main(int argc, char *argv[])
 
 	int valid=parseCommandLineArguments(numOfFiles, arguments, argc, argv);
 	if(!valid) {
-		printf("Error while changing mode!");
+		printf("Error while changing mode!\n");
 		exit();
+	}
+
+	for(int i=1;i<=numOfFiles;i++) {					// check if all files exist
+		struct stat* inodeStat=NULL;
+
+		if(stat(arguments[i], inodeStat)==-1) {
+			printf("Error while changing mode!\n");
+			exit();
+		}
 	}
 
 	for(int i=1;i<=numOfFiles;i++) {
 		struct stat* inodeStat=NULL;
-
-		if(stat(arguments[i], inodeStat)==-1) {
-			printf("Error while changing mode!");
-			exit();
-		}
+		stat(arguments[i], inodeStat);
 
 		int newMode=atoi(arguments[0]);
-		if(newMode==0)
+		if(newMode==0 && arguments[0][0]!='0')					// if value for mode is string, parse it
 			newMode=convertStringToMode(arguments[0], inodeStat->mode);
 		else
-			newMode=convertOctalToDecimal(newMode);
+			newMode=convertOctalToDecimal(newMode);				// else convert octal number to decimal number
 
 		if(newMode<0) {		
-			printf("Error while changing mode!");
+			printf("Error while changing mode!\n");
 			exit();
 		}
 		else
