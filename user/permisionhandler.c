@@ -60,7 +60,7 @@ int convertStringToMode(char* modeString, int oldMode)
 		return -1;
 
 	char who=modeString[0];
-	int shift;
+	int shift=0;
 	switch(who) {
 		case 'a':	shift=3;	break;
 		case 'u':	shift=2;	break;
@@ -78,7 +78,7 @@ int convertStringToMode(char* modeString, int oldMode)
 		default :	return -1;			break;
 	}
 
-	int bitMask;
+	int bitMask=0;
 	if(shift==3) 								// if option a is selected, add permBit to every bit group
 		for(int i=0;i<shift;i++) {
 			bitMask=bitMask << 3; 

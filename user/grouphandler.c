@@ -221,6 +221,16 @@ void addNewGroup(struct group* newGroup)
    updateGroupFile(groupList);
 }
 
+void freeGroupList(struct group* groupList)
+{
+   struct group* tmpGroup;
+   while(groupList!=NULL) {
+      tmpGroup=groupList;
+      groupList=groupList->next;
+      free(tmpGroup);
+   }
+}
+
 struct group* getGroupFromGroupname(char* groupname)
 {
 	struct group* groupList=selectAllGroupsFromGroupFile();

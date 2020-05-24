@@ -145,14 +145,16 @@ struct user* authenticateUser(char* username, char* password)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
 
-   while(userList!=NULL) {
-      int valid=checkUsernamePasswordForCurrUser(username,password,userList);
+   struct user* tmpUser=userList;
+   while(tmpUser!=NULL) {
+      int valid=checkUsernamePasswordForCurrUser(username, password, tmpUser);
       if(valid)
-         return userList;
+         return tmpUser;
 
-      userList=userList->next;
+      tmpUser=tmpUser->next;
    }
 
+   freeUserList(userList);
    return NULL;
 }
 
@@ -160,13 +162,17 @@ int isUidAvailable(int uid)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
 
-   while(userList!=NULL) {
-      if(userList->uid==uid)
+   struct user* tmpUser=userList;
+   while(tmpUser!=NULL) {
+      if(tmpUser->uid==uid) {
+         freeUserList(userList);
          return 0;
+      }
 
-      userList=userList->next;
+      tmpUser=tmpUser->next;
    }
 
+   freeUserList(userList);
    return 1;
 }
 
@@ -175,13 +181,15 @@ int getNextAvailableUid()
    struct user* userList=selectAllUsersFromPasswdFile();
    int uid=1000;
 
-   while(userList!=NULL) {
-      if(userList->uid==uid)
+   struct user* tmpUser=userList;
+   while(tmpUser!=NULL) {
+      if(tmpUser->uid==uid)
          uid++;
 
-      userList=userList->next;
+      tmpUser=tmpUser->next;
    }
 
+   freeUserList(userList);
    return uid;
 }
 
@@ -189,15 +197,17 @@ struct user* getUserFromUid(int uid)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
 
-   while(userList!=NULL) {
-      if(uid==userList->uid) {
-         userList->next=NULL;             // return only this user, not the whole list
-         return userList;
+   struct user* tmpUser=userList;
+   while(tmpUser!=NULL) {
+      if(uid==tmpUser->uid) {
+         tmpUser->next=NULL;             // return only this user, not the whole list
+         return tmpUser;
       }
 
-      userList=userList->next;
+      tmpUser=tmpUser->next;
    }
 
+   freeUserList(userList);
    return NULL;
 }
 
@@ -205,15 +215,17 @@ struct user* getUserFromUsername(char* username)
 {
    struct user* userList=selectAllUsersFromPasswdFile();
 
-   while(userList!=NULL) {
-      if(!strcmp(userList->username, username)) {
-         userList->next=NULL;          // return only this user, not the whole list
-         return userList;
+   struct user* tmpUser=userList;
+   while(tmpUser!=NULL) {
+      if(!strcmp(tmpUser->username, username)) {
+         tmpUser->next=NULL;          // return only this user, not the whole list
+         return tmpUser;
       }
 
-      userList=userList->next;
+      tmpUser=tmpUser->next;
    }
 
+   freeUserList(userList);
    return NULL;
 }
 
@@ -240,6 +252,7 @@ void updatePasswordForUser(struct user* currUser, char* newPassword)
    }
 
    updatePasswdFile(userList);
+   freeUserList(userList);
 }
 
 void updatePasswdFile(struct user* userList)
@@ -272,6 +285,7 @@ void addNewUser(struct user* newUser)
    struct user* userList=selectAllUsersFromPasswdFile();
    userList=addUserToListSorted(userList, newUser);
    updatePasswdFile(userList);
+   freeUserList(userList);
 }
 
 /*int isUserInGroup(struct user* currUser, struct group* currGroup) 
@@ -305,6 +319,7 @@ void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
    }
 
    updateGroupFile(groupList);
+   freeGroupList(groupList);
 }
 
 struct user* removeUserFromCurrGroup(struct group* currGroup, struct user* currUser)
@@ -341,6 +356,17 @@ void removeUserFromAllGroups(struct user* currUser)
    }
 
    updateGroupFile(groupList);
+   freeGroupList(groupList);
+}
+
+void freeUserList(struct user* userList)
+{
+   struct user* tmpUser;
+   while(userList!=NULL) {
+      tmpUser=userList;
+      userList=userList->next;
+      free(tmpUser);
+   }
 }
 
 // NEED TO ADD OTHER OPTIONS
@@ -414,5 +440,5 @@ void updateUserInfo(struct user* currUser, struct user* modUser) {
    }
    
    updatePasswdFile(userList);
-   
+   freeUserList(userList);
 }

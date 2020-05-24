@@ -55,3 +55,4 @@ char* strcat(char*, const char*);
 char* itoa(int, char*, int);
 int abs(int);
 int isEmptyString(char*);
+int pow(int, int);

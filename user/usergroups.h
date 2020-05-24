@@ -50,6 +50,7 @@ void updateUserInfo(struct user* currUser, struct user* modUser);
 void addUserToGroups(struct group* groupsToAddUser, struct user* currUser);
 void addNewUser(struct user* newUser);
 void removeUserFromAllGroups(struct user* currUser);
+void freeUserList(struct user* userList);
 
 //	Working with groups
 struct group* selectAllGroupsFromGroupFile();
@@ -62,6 +63,7 @@ void updateGroupFile(struct group* groupList);
 void getStringFromGroup(struct group* currGroup, char* groupString);
 void addNewGroup(struct group* newGroup);
 void printEtcFile(char* file);
+void freeGroupList(struct group* groupList);
 int isGidAvailable(int gid);
 int getNextAvailableGid();
 int compareGroups(struct group* group1, struct group* group2);
