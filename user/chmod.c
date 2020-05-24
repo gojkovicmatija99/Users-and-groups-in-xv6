@@ -41,7 +41,7 @@ main(int argc, char *argv[])
 	}
 
 	for(int i=1;i<=numOfFiles;i++) {
-		struct stat* inodeStat;
+		struct stat* inodeStat=NULL;
 
 		if(stat(arguments[i], inodeStat)==-1) {
 			printf("Error while changing mode!");

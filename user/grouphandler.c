@@ -171,13 +171,17 @@ int isGidAvailable(int gid)
 {
    struct group* groupList=selectAllGroupsFromGroupFile();
 
-   while(groupList!=NULL) {
-      if(groupList->gid==gid)
+   struct group* tmpGroup=groupList;
+   while(tmpGroup!=NULL) {
+      if(tmpGroup->gid==gid) {
+         freeGroupList(groupList);
          return 0;
+      }
 
-      groupList=groupList->next;
+      tmpGroup=tmpGroup->next;
    }
 
+   freeGroupList(groupList);
    return 1;
 }
 
@@ -186,13 +190,15 @@ int getNextAvailableGid()
    struct group* groupList=selectAllGroupsFromGroupFile();
    int gid=1000;
 
-   while(groupList!=NULL) {
-      if(groupList->gid==gid)
+   struct group* tmpGroup=groupList;
+   while(tmpGroup!=NULL) {
+      if(tmpGroup->gid==gid)
          gid++;
 
-      groupList=groupList->next;
+      tmpGroup=tmpGroup->next;
    }
 
+   freeGroupList(groupList);
    return gid;
 }
 
@@ -219,6 +225,7 @@ void addNewGroup(struct group* newGroup)
    struct group* groupList=selectAllGroupsFromGroupFile();
    groupList=addGroupToListSorted(groupList, newGroup);
    updateGroupFile(groupList);
+   freeGroupList(groupList);
 }
 
 void freeGroupList(struct group* groupList)
@@ -235,15 +242,17 @@ struct group* getGroupFromGroupname(char* groupname)
 {
 	struct group* groupList=selectAllGroupsFromGroupFile();
 
-	while(groupList!=NULL) {
-		if(!strcmp(groupList->groupname, groupname)) {
-			groupList->next=NULL;               // return only this group, not the whole list
-			return groupList;
+   struct group* tmpGroup=groupList;
+	while(tmpGroup!=NULL) {
+		if(!strcmp(tmpGroup->groupname, groupname)) {
+			tmpGroup->next=NULL;               // return only this group, not the whole list
+			return tmpGroup;
 		}
 
-		groupList=groupList->next;
+		tmpGroup=tmpGroup->next;
 	}
 
+   freeGroupList(groupList);
 	return NULL;
 }
 
@@ -251,15 +260,17 @@ struct group* getGroupFromGid(int gid)
 {
    struct group* groupList=selectAllGroupsFromGroupFile();
 
-   while(groupList!=NULL) {
-      if(gid==groupList->gid) {
-         groupList->next=NULL;               // return only this group, not the whole list
-         return groupList;
+   struct group* tmpGroup=groupList;
+   while(tmpGroup!=NULL) {
+      if(gid==tmpGroup->gid) {
+         tmpGroup->next=NULL;               // return only this group, not the whole list
+         return tmpGroup;
       }
 
-      groupList=groupList->next;
+      tmpGroup=tmpGroup->next;
    }
 
+   freeGroupList(groupList);
    return NULL;
 }
 
