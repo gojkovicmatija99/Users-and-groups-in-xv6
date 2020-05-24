@@ -7,8 +7,8 @@
 struct user* getUserFromString(char* userString)
 {
 	struct user* currUser=(struct user*)malloc(sizeof(struct user));
-	char tmp[6][32];	
-   char buf[32];
+	char tmp[6][STRING_SIZE];	
+   char buf[STRING_SIZE];
 
    int pnt=0;                 // pnt points to the absolute position in the string
    for(int i=0;i<6;i++) {     // parses user info with delimiter ':'
@@ -41,12 +41,12 @@ void getStringFromUser(struct user* currUser, char* userString)
    strcat(userString, currUser->password);
    strcat(userString, ":");
 
-   char uidString[32];
+   char uidString[STRING_SIZE];
    itoa(currUser->uid, uidString, 10);
    strcat(userString, uidString);
    strcat(userString, ":");
 
-   char gidString[32];
+   char gidString[STRING_SIZE];
    itoa(currUser->gid, gidString, 10);
    strcat(userString, gidString);
    strcat(userString, ":");
@@ -250,7 +250,7 @@ void updatePasswdFile(struct user* userList)
    int fd=open("/etc/passwd",O_WRONLY);
 
    while(userList!=NULL) {
-      char userString[128];
+      char userString[STRING_SIZE*4];
       getStringFromUser(userList, userString);
       write(fd, userString, strlen(userString));
 

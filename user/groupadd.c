@@ -15,7 +15,7 @@ int getPositionInArguments(char* command) {
 	return -1;
 }
 
-int parseCommandLineArguments(char arguments[4][32],int argc,char* argv[])
+int parseCommandLineArguments(char arguments[4][STRING_SIZE],int argc,char* argv[])
 {
 	if(argc<2)													// if no username is suplied, return error
 			return 0;
@@ -40,17 +40,19 @@ int parseCommandLineArguments(char arguments[4][32],int argc,char* argv[])
 int
 main(int argc, char *argv[])
 {
-	char arguments[2][32];
+	char arguments[2][STRING_SIZE];
 
 	int valid=parseCommandLineArguments(arguments, argc, argv);
-	if(!valid)
+	if(!valid) {
 		printf("Error while creating group!\n");
-	else {
-		struct group* newGroup=createGroup(arguments[1], arguments[0], DONT_ADD_USER);
-		if(newGroup==NULL)
-			printf("Error while creating group!\n");
-		else
-			addNewGroup(newGroup);
+		exit();
 	}
+		
+	struct group* newGroup=createGroup(arguments[1], arguments[0], DONT_ADD_USER);
+	if(newGroup==NULL)
+		printf("Error while creating group!\n");
+	else
+		addNewGroup(newGroup);
+
 	exit();	
 }

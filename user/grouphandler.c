@@ -7,8 +7,8 @@
 struct group* getGroupFromString(char* groupString) 
 {
    struct group* currGroup=(struct group*)malloc(sizeof(struct group));
-   char tmp[12][32];
-   char buf[32];
+   char tmp[12][STRING_SIZE];
+   char buf[STRING_SIZE];
 
    int pnt=0;                 // pnt points to the absolute position in the string
    for(int i=0;i<2;i++) {     // parses group info with delimiter ':'
@@ -52,7 +52,7 @@ void getStringFromGroup(struct group* currGroup, char* groupString)
    strcpy(groupString, currGroup->groupname);
    strcat(groupString, ":");
 
-   char gidString[32];
+   char gidString[STRING_SIZE];
    itoa(currGroup->gid, gidString, 10);
    strcat(groupString, gidString);
    strcat(groupString, ":");
@@ -151,7 +151,7 @@ struct group* selectAllGroupsFromGroupFile()
 
 void printEtcFile(char* file)
 {
-   char path[32];
+   char path[STRING_SIZE];
    strcpy(path,"/etc/");
    strcat(path,file);
 
@@ -204,7 +204,7 @@ void updateGroupFile(struct group* groupList)
    int fd=open("/etc/group",O_WRONLY);
 
    while(groupList!=NULL) {
-      char groupString[512];
+      char groupString[STRING_SIZE*16];
       getStringFromGroup(groupList, groupString);
       write(fd, groupString, strlen(groupString));
 
@@ -256,7 +256,7 @@ struct group* getGroupFromGid(int gid)
 struct group* getMultipleGroupsFromString(char* groupsString) 
 {
    struct group* groupList=NULL;
-   char buf[32];
+   char buf[STRING_SIZE];
 
    int pnt=0;              // pnt points to the absolute position in the string
    while(1) {              // parses groups with delimiter ','

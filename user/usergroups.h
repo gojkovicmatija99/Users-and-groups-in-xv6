@@ -8,31 +8,27 @@
 #define WRITE 		2
 #define EXECUTE 	1
 
+#define STRING_SIZE 32
+
 struct user {
-	char username[32];
-	char password[32];
+	char username[STRING_SIZE];
+	char password[STRING_SIZE];
 	int uid;
 	int gid;
-	char realname[32];
-	char homedir[32]; 
+	char realname[STRING_SIZE];
+	char homedir[STRING_SIZE]; 
 	struct user* next;
 };
 
 struct group {
-	char groupname[32];
+	char groupname[STRING_SIZE];
 	int gid;
 	struct user* userList;
 	struct group* next;
 };
 
-//	Working with etc dir (passwd, group, issue, motd)
-struct user* selectAllUsersFromPasswdFile();
-struct group* selectAllGroupsFromGroupFile();
-void updatePasswdFile(struct user* userList);
-void updateGroupFile(struct group* groupList);
-void printEtcFile(char* file);
-
 //	Working with users
+struct user* selectAllUsersFromPasswdFile();
 struct user* getUserFromString(char* userString);
 struct user* getUserFromUid(int uid);
 struct user* getUserFromUsername(char* username);
@@ -45,8 +41,9 @@ int checkUsernamePasswordForCurrUser(char* username, char* password, struct user
 int authenticateOldPassword(struct user* currUser, char* oldPassword);
 int isUidAvailable(int uid);
 int getNextAvailableUid();
-int isUserInGroup(struct user* currUser, struct group* currGroup);
 int compareUsers(struct user* user1, struct user* user2);
+int isUserInGroup(struct user* currUser, struct group* currGroup);
+void updatePasswdFile(struct user* userList);
 void updatePasswordForUser(struct user* user, char* newPassword);
 void getStringFromUser(struct user* currUser, char* userString);
 void updateUserInfo(struct user* currUser, struct user* modUser);
@@ -55,16 +52,21 @@ void addNewUser(struct user* newUser);
 void removeUserFromAllGroups(struct user* currUser);
 
 //	Working with groups
+struct group* selectAllGroupsFromGroupFile();
 struct group* createGroup(char* groupname, char* gidString, int addUserWithSameGroupname);
 struct group* getGroupFromString(char* groupString);
 struct group* addGroupToListSorted(struct group* groupList, struct group* currGroup);
 struct group* getMultipleGroupsFromString(char* groupString);
 struct group* getGroupFromGid(int gid);
+void updateGroupFile(struct group* groupList);
 void getStringFromGroup(struct group* currGroup, char* groupString);
 void addNewGroup(struct group* newGroup);
+void printEtcFile(char* file);
 int isGidAvailable(int gid);
 int getNextAvailableGid();
 int compareGroups(struct group* group1, struct group* group2);
 
 //	Working with permision
 char* getPermisionsString(int permisions, short type, char* permisionsString);
+int convertOctalToDecimal(int octalNumber);
+int convertStringToMode(char* modeString, int oldMode);

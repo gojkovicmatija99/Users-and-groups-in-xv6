@@ -7,17 +7,17 @@ char *argv[] = { "sh", 0 };
 
 struct user* login()
 {
-	char username[32];
-	char password[32];
+	char username[STRING_SIZE];
+	char password[STRING_SIZE];
 
 	while(1) {
 		printf("Username: ");
-		gets(username,32);
+		gets(username, STRING_SIZE);
 		username[strlen(username)-1]='\0';			// remove new line from username
 
 		printf("Password: ");
 		echoOnOff();								// turn off echo
-		gets(password,32);
+		gets(password, STRING_SIZE);
 		echoOnOff();								// turn on echo
 		printf("\n");
 		password[strlen(password)-1]='\0';

@@ -321,3 +321,12 @@ int isEmptyString(char* string)
       return 1;
    return 0;
 }
+
+int pow(int base, int exponent)
+{
+	int result=1;
+	for(int i=0;i<exponent;i++)
+		result*=base;
+
+	return result;
+}

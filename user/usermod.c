@@ -27,7 +27,7 @@ int getPositionInArguments(char* command) {
 	return -1;
 }
 
-int parseCommandLineArguments(char arguments[8][64], int argc,char* argv[])
+int parseCommandLineArguments(char arguments[8][STRING_SIZE], int argc,char* argv[])
 {
 	if(argc<2)													// if no username is suplied, return error
 			return 0;
@@ -63,22 +63,25 @@ int parseCommandLineArguments(char arguments[8][64], int argc,char* argv[])
 int
 main(int argc, char *argv[])
 {
-	char arguments[8][64];
+	char arguments[8][STRING_SIZE];
 
 	int valid=parseCommandLineArguments(arguments, argc, argv);
-	if(!valid)
+	if(!valid) {
 		printf("Error while modifying user!\n");
-	else {
-		struct user* currUser=getUserFromUsername(arguments[7]);
-		if(currUser==NULL)
-			printf("Error while modifying user!\n");
-		else {
-			struct user* modUser=modifyUser(currUser, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
-			if(modUser==NULL)
-				printf("Error while modifying user!\n");
-			else
-				updateUserInfo(currUser, modUser);
-		}
-	}	
+		exit();
+	}
+
+	struct user* currUser=getUserFromUsername(arguments[7]);
+	if(currUser==NULL) {
+		printf("Error while modifying user!\n");
+		exit();
+	}
+		
+	struct user* modUser=modifyUser(currUser, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
+	if(modUser==NULL)
+		printf("Error while modifying user!\n");
+	else
+		updateUserInfo(currUser, modUser);
+
 	exit();	
 }

@@ -27,12 +27,12 @@ main(int argc, char *argv[])
 		}
 	}
 
-	char oldPassword[32];
+	char oldPassword[STRING_SIZE];
 	if(procUid!=ROOT) {									// root user can skip verification of old password
 		printf("Old password: ");
 
 		echoOnOff();									// turn off echo
-		gets(oldPassword, 32);
+		gets(oldPassword, STRING_SIZE);
 		echoOnOff();									// turn on echo
 		printf("\n");
 		oldPassword[strlen(oldPassword)-1]='\0';		// remove new line from old password
@@ -44,12 +44,12 @@ main(int argc, char *argv[])
 		}					
 	}				
 
-	char newPassword[32];
-	char retypePassword[32];
+	char newPassword[STRING_SIZE];
+	char retypePassword[STRING_SIZE];
 	printf("New password: ");
 		
 	echoOnOff();
-	gets(newPassword, 32);
+	gets(newPassword, STRING_SIZE);
 	echoOnOff();
 	printf("\n");
 	newPassword[strlen(newPassword)-1]='\0';	
@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 	printf("Retype new password: ");
 
 	echoOnOff();									
-	gets(retypePassword, 32);
+	gets(retypePassword, STRING_SIZE);
 	echoOnOff();									
 	printf("\n");
 	retypePassword[strlen(retypePassword)-1]='\0';
