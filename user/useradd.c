@@ -51,7 +51,6 @@ main(int argc, char *argv[])
 		printf("Error while creating user!\n");
 		exit();
 	}
-		
 	struct user* newUser=createUser(arguments[0], arguments[1], arguments[2], arguments[3]);
 	if(newUser==NULL) {
 		printf("Error while creating user!\n");

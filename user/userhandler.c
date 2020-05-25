@@ -55,6 +55,7 @@ void getStringFromUser(struct user* currUser, char* userString)
    strcat(userString, ":");
 
    strcat(userString, currUser->homedir);
+
    strcat(userString, "\n");
 }
 
@@ -122,7 +123,7 @@ struct user* selectAllUsersFromPasswdFile()
    read(fd,fileContent,size);
 
    char* token = strtok(fileContent, "\n");
-   while( token != NULL ) {
+   while( token != NULL) {
       struct user* currUser=getUserFromString(token);
       userList=addUserToListSorted(userList, currUser);
 
@@ -426,7 +427,7 @@ void updateUserInfo(struct user* currUser, struct user* modUser) {
 
    struct user* tmpUser=userList;
    while(tmpUser!=NULL) {
-      if(tmpUser->uid==currUser->uid) {
+      if(!compareUsers(tmpUser, currUser)) {
          strcpy(tmpUser->username, modUser->username);
          strcpy(tmpUser->password, modUser->password);
          tmpUser->uid=modUser->uid;

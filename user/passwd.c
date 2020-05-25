@@ -72,7 +72,8 @@ main(int argc, char *argv[])
 		exit();
 	}
 
-	updatePasswordForUser(user, newPassword);
+	strcpy(user->password, newPassword);
+	updateUserInfo(user, user);
 
 	exit();
 }

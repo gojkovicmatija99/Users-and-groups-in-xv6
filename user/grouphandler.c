@@ -41,7 +41,6 @@ struct group* getGroupFromString(char* groupString)
       else
          pnt+=curr+1;
    }
-
    currGroup->next=NULL;
 
    return currGroup;
@@ -68,7 +67,6 @@ void getStringFromGroup(struct group* currGroup, char* groupString)
 
       tmpUser=tmpUser->next;
    }
-
    strcat(groupString, "\n");
 }
 

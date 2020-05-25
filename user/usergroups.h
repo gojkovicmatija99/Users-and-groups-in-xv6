@@ -44,7 +44,6 @@ int getNextAvailableUid();
 int compareUsers(struct user* user1, struct user* user2);
 int isUserInGroup(struct user* currUser, struct group* currGroup);
 void updatePasswdFile(struct user* userList);
-void updatePasswordForUser(struct user* user, char* newPassword);
 void getStringFromUser(struct user* currUser, char* userString);
 void updateUserInfo(struct user* currUser, struct user* modUser);
 void addUserToGroups(struct group* groupsToAddUser, struct user* currUser);
