@@ -241,24 +241,6 @@ int authenticateOldPassword(struct user* currUser, char* oldPassword)
    return 0;
 }
 
-void updatePasswordForUser(struct user* currUser, char* newPassword)
-{
-   struct user* userList=selectAllUsersFromPasswdFile();
-
-   struct user* tmpUser=userList;
-   while(tmpUser!=NULL) {
-      if(!compareUsers(tmpUser, currUser)) {
-         strcpy(tmpUser->password, newPassword);
-         break;
-      }
-
-      tmpUser=tmpUser->next;
-   }
-
-   updatePasswdFile(userList);
-   freeUserList(userList);
-}
-
 void updatePasswdFile(struct user* userList)
 {
    unlink("/etc/passwd");
