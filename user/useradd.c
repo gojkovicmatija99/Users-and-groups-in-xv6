@@ -60,6 +60,7 @@ main(int argc, char *argv[])
 
 	char gidString[STRING_SIZE];
 	itoa(newUser->gid, gidString, 10);
+	printf("%s %s %d",newUser->username, gidString, ADD_USER);
 	struct group* newGroup=createGroup(newUser->username, gidString, ADD_USER);
 	addNewGroup(newGroup);
 	

@@ -95,6 +95,9 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
 
 struct user* addUserToListSorted(struct user* userList, struct user* currUser)
 {
+   if(currUser==NULL)
+      return userList;
+
    if(userList==NULL)
       return currUser;
 
