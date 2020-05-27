@@ -63,15 +63,6 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
 {
    struct user* newUser=(struct user*)malloc(sizeof(struct user));
 
-   strcpy(newUser->homedir, "/home/");                    // all users are stored in "/home/"
-   if(!isEmptyString(homedir))
-      strcat(newUser->homedir, homedir);
-   else
-      strcat(newUser->homedir, username);
-
-   if(mkdir(newUser->homedir)==-1)                       // if dir isn't created, return error
-      return NULL;
-
    if(!isEmptyString(uidString)) {                       // if user has entered uid
       int uid=atoi(uidString);
       if(uid==0)                                               // if uidString isn't a number, return error
@@ -86,7 +77,19 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
       newUser->uid=uid;
    }
 
-   newUser->gid=newUser->uid;
+   int gid=getNextAvailableGid();
+   newUser->gid=gid;
+
+   strcpy(newUser->homedir, "/home/");                    // all users are stored in "/home/"
+   if(!isEmptyString(homedir))
+      strcat(newUser->homedir, homedir);
+   else
+      strcat(newUser->homedir, username);
+
+   int valid=mkdir(newUser->homedir);
+   if(valid==-1)                                          // if dir isn't created, return error
+      return NULL;
+
    strcpy(newUser->realname, realname);
    strcpy(newUser->username, username);
 
@@ -401,7 +404,11 @@ struct user* modifyUser(struct user* currUser, char* username, char* uidString, 
       strcat(modUser->homedir, homedir);
 
       if(mkdir(modUser->homedir)==-1)                       // if dir isn't created, return error
-      return NULL;
+         return NULL;
+
+      int valid=chown(modUser->homedir, modUser->uid, modUser->gid);
+      if(valid<0)
+         return NULL;
    }
 
    return modUser;

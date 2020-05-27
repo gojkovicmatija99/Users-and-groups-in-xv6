@@ -4,6 +4,7 @@
 #define ADD_USER 		8
 #define	DONT_ADD_USER 	16
 
+#define SETUID 		8
 #define READ 		4
 #define WRITE 		2
 #define EXECUTE 	1

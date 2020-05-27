@@ -126,12 +126,28 @@ int sys_chmod(void)
 
 	struct proc* currProc=myproc();
 	struct inode* ip=namei(path);
-	if(currProc->uid!=ip->uid && currProc->uid!=ROOT) {
-		cprintf("Permision denied!\n");
+	if(currProc->uid!=ip->uid && currProc->uid!=ROOT)
 		return -1;
-	}
 
 	ip->mode=mode;
+	return 1;
+}
+
+int sys_chown(void)
+{
+	char* path;
+	int uid, gid;
+
+	if(argstr(0, &path) < 0 || argint(1,&uid)<0 || argint(2,&gid)<0)
+		return -1;
+
+	struct proc* currProc=myproc();
+	struct inode* ip=namei(path);
+	if(currProc->uid!=ROOT)
+		return -1;
+
+	ip->uid=uid;
+	ip->gid=gid;
 	return 1;
 }
 

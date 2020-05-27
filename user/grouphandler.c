@@ -107,10 +107,7 @@ int compareGroups(struct group* group1, struct group* group2)
 }
 
 struct group* addGroupToListSorted(struct group* groupList, struct group* currGroup)
-{
-   if(currGroup==NULL)
-      return groupList;
-   
+{ 
    if(groupList==NULL)
    		return currGroup;
 

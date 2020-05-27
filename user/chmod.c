@@ -63,8 +63,12 @@ main(int argc, char *argv[])
 			printf("Error while changing mode!\n");
 			exit();
 		}
-		else
-			chmod(arguments[i], newMode);
+
+		int valid=chmod(arguments[i], newMode);
+		if(valid<0) {
+			printf("Permision denied!\n");
+			exit();
+		}
 	}
 	
 	exit();	

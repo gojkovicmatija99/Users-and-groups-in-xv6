@@ -69,7 +69,7 @@ ls(char *path)
 			char permisionsString[10];
 			getPermisionsString(st.mode, st.type, permisionsString);
 
-			printf("%s %d %s %s %d %s\n",permisionsString, st.type, fileOwner->username, groupOwner->groupname, st.size, fmtname(buf));
+			printf("%s %d %s %s %d %s\n", permisionsString, st.type, fileOwner->username, groupOwner->groupname, st.size, fmtname(buf));
 		}
 		break;
 	}

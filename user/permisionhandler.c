@@ -72,11 +72,15 @@ int convertStringToMode(char* modeString, int oldMode)
 	char permChar=modeString[2];
 	int permBit;
 	switch(permChar) {
+		case 's': 	permBit=SETUID;		break;
 		case 'r':	permBit=READ;		break;
 		case 'w':	permBit=WRITE;		break;
 		case 'x':	permBit=EXECUTE;	break;
 		default :	return -1;			break;
 	}
+
+	if(permChar=='s' && who!='u')				// special case, only valid format for setuid is u+s or u-s
+		return -1;
 
 	int bitMask=0;
 	if(shift==3) 								// if option a is selected, add permBit to every bit group

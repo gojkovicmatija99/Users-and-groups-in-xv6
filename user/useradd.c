@@ -58,8 +58,7 @@ main(int argc, char *argv[])
 	}
 	addNewUser(newUser);
 
-	char gidString[STRING_SIZE];
-	itoa(newUser->gid, gidString, 10);
+	char gidString[STRING_SIZE];							// is always null because always get next available gid
 	struct group* newGroup=createGroup(newUser->username, gidString, ADD_USER);
 	addNewGroup(newGroup);
 	
