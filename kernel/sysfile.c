@@ -135,6 +135,14 @@ int sys_chmod(void)
 	return 1;
 }
 
+void changeOwnerGroup(int uid, int gid, struct inode* ip)
+{
+	ilock(ip);
+	ip->uid=uid;
+	ip->gid=gid;
+	iunlock(ip);
+}
+
 int sys_chown(void)
 {
 	char* path;
@@ -148,10 +156,7 @@ int sys_chown(void)
 	if(currProc->uid!=ROOT)
 		return -1;
 
-	ilock(ip);
-	ip->uid=uid;
-	ip->gid=gid;
-	iunlock(ip);
+	changeOwnerGroup(uid, gid, ip);
 	return 1;
 }
 
@@ -163,21 +168,20 @@ int sys_updateDirOwner(void)
 	if(argstr(0, &path) < 0 || argint(1,&uid)<0 || argint(2,&gid)<0)
 		return -1;
 
+	struct inode* dp=namei(path);
+	changeOwnerGroup(uid, gid, dp);											// change the uid and gid of homedir dir
+
 	int off;
 	struct dirent de;
-
-	struct inode* dp=namei(path);
-
-	for(off=2*sizeof(de); off<dp->size; off+=sizeof(de)){
+	for(off=2*sizeof(de); off<dp->size; off+=sizeof(de)){					// change the uid and gid of homedir files
 		if(readi(dp, (char*)&de, off, sizeof(de)) != sizeof(de))
 			panic("updateDirOwner");
 
-		/*struct inode* ip=(struct inode*)de.inum;
-		ilock(ip);
-		ip->uid=uid;
-		ip->gid=gid;
-		iunlock(ip);
-	}*/
+		struct inode* ip=namei(de.name);
+		changeOwnerGroup(uid, gid, ip);
+	}
+
+	return 1;
 }
 
 // Create the path new as a link to the same inode as old.
