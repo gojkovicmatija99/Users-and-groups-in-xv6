@@ -110,7 +110,7 @@ int sys_setuid()
 	struct proc* currProc=myproc();
 	if(currProc->uid!=ROOT)
 		return -1;
-		
+	
 	currProc->uid=uid;
 	currProc->euid=uid;
 		

@@ -438,6 +438,7 @@ ialloc(ushort type, int uid, int gid)
 	din.size = xint(0);
 	din.uid=uid;
 	din.gid=gid;
+	din.mode=0644;
 	winode(inum, &din);
 	return inum;
 }

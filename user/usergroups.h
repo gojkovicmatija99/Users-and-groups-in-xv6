@@ -1,8 +1,8 @@
 #define NULL 0
 #define ROOT 0   // uid of the root user
 
-#define ADD_USER 		8
-#define	DONT_ADD_USER 	16
+#define ADD_USER 		2
+#define	DONT_ADD_USER 	1
 
 #define SETUID 		8
 #define READ 		4
@@ -69,6 +69,6 @@ int getNextAvailableGid();
 int compareGroups(struct group* group1, struct group* group2);
 
 //	Working with permision
-char* getPermisionsString(int permisions, short type, char* permisionsString);
+void getPermisionsString(int permisions, short type, char* permisionsString);
 int convertOctalToDecimal(int octalNumber);
 int convertStringToMode(char* modeString, int oldMode);

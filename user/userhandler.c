@@ -89,6 +89,8 @@ struct user* createUser(char* homedir, char* uidString, char* realname, char* us
    int valid=mkdir(newUser->homedir);
    if(valid==-1)                                          // if dir isn't created, return error
       return NULL;
+   else
+      chown(newUser->homedir, newUser->uid, newUser->gid);
 
    strcpy(newUser->realname, realname);
    strcpy(newUser->username, username);
@@ -386,6 +388,8 @@ struct user* modifyUser(struct user* currUser, char* username, char* uidString, 
          modUser->uid=uid;
       else
          return NULL;
+
+      updateDirOwner(modUser->homedir, modUser->uid, modUser->gid);
    }
 
    if(!isEmptyString(realname))

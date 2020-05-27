@@ -4,7 +4,7 @@
 #include "user.h"
 #include "usergroups.h"
 
-char* getPermisionsString(int permisions, short type, char* permisionsString)
+void getPermisionsString(int permisions, short type, char* permisionsString)
 {
 	if(type==T_DIR)
 		strcpy(permisionsString, "d");
@@ -33,7 +33,6 @@ char* getPermisionsString(int permisions, short type, char* permisionsString)
 	}
 
 	permisionsString[10]='\0';
-	return permisionsString;
 }
 
 int convertOctalToDecimal(int octalNumber)

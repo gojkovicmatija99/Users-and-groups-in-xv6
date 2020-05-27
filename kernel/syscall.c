@@ -111,6 +111,7 @@ extern int sys_geteuid(void);
 extern int sys_setuid(void);
 extern int sys_chmod(void);
 extern int sys_chown(void);
+extern int sys_updateDirOwner(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -142,6 +143,7 @@ static int (*syscalls[])(void) = {
 [SYS_setuid]   sys_setuid,
 [SYS_chmod]   sys_chmod,
 [SYS_chown]   sys_chown,
+[SYS_updateDirOwner]   sys_updateDirOwner,
 };
 
 void

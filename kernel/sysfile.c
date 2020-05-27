@@ -129,7 +129,9 @@ int sys_chmod(void)
 	if(currProc->uid!=ip->uid && currProc->uid!=ROOT)
 		return -1;
 
+	ilock(ip);
 	ip->mode=mode;
+	iunlock(ip);
 	return 1;
 }
 
@@ -146,9 +148,36 @@ int sys_chown(void)
 	if(currProc->uid!=ROOT)
 		return -1;
 
+	ilock(ip);
 	ip->uid=uid;
 	ip->gid=gid;
+	iunlock(ip);
 	return 1;
+}
+
+int sys_updateDirOwner(void)
+{
+	char* path;
+	int uid, gid;
+
+	if(argstr(0, &path) < 0 || argint(1,&uid)<0 || argint(2,&gid)<0)
+		return -1;
+
+	int off;
+	struct dirent de;
+
+	struct inode* dp=namei(path);
+
+	for(off=2*sizeof(de); off<dp->size; off+=sizeof(de)){
+		if(readi(dp, (char*)&de, off, sizeof(de)) != sizeof(de))
+			panic("updateDirOwner");
+
+		/*struct inode* ip=(struct inode*)de.inum;
+		ilock(ip);
+		ip->uid=uid;
+		ip->gid=gid;
+		iunlock(ip);
+	}*/
 }
 
 // Create the path new as a link to the same inode as old.
