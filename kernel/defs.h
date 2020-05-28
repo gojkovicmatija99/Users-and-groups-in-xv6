@@ -189,3 +189,8 @@ void            clearpteu(pde_t *pgdir, char *uva);
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
 
 #define ROOT   0   // uid of the root user
+
+#define SETUID 		8
+#define READ 		4
+#define WRITE 		2
+#define EXECUTE 	1

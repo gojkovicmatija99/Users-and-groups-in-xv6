@@ -351,6 +351,40 @@ create(char *path, short type, short major, short minor)
 	return ip;
 }
 
+int validatePermisions(char* path, int omode)
+{
+	struct inode* passwd=namei("/etc/passwd");
+	struct inode* group=namei("/etc/group");
+
+	int currUser=myproc()->uid;
+	char s[20];
+	struct inode* iParent=nameiparent(path, s);
+	struct inode* iChild=namei(path);
+
+	ilock(iParent);
+	int uidParent=iParent->uid;
+	int modeParent=iParent->mode;
+	iunlock(iParent);
+
+	ilock(iChild);
+	int uidChild=iChild->uid;
+	int modeChild=iChild->mode;
+	int typeChild=iChild->type;
+	iunlock(iChild);
+
+	// TODO: Setuid bit?
+	if(iChild==passwd || iChild==group)
+		return 1;
+	
+	if(omode==O_RDONLY || omode==O_RDWR) {
+		int userRead=READ<<6;
+		if(!(modeParent & userRead) || uidParent != currUser)
+			return -1;
+	}
+
+	return 1;
+}
+
 int
 sys_open(void)
 {
@@ -361,6 +395,11 @@ sys_open(void)
 
 	if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
 		return -1;
+
+	int currUser=myproc()->uid;
+	if(currUser!=ROOT)					// if user isn't root, validate permisions
+		if(validatePermisions(path, omode)<0)
+			return -1;
 
 	begin_op();
 
