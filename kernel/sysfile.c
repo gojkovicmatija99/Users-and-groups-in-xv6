@@ -148,7 +148,7 @@ int sys_chown(void)
 	char* path;
 	int uid, gid;
 
-	if(argstr(0, &path) < 0 || argint(1,&uid)<0 || argint(2,&gid)<0)
+	if(argstr(0, &path) < 0 || argint(1, &uid)<0 || argint(2, &gid)<0)
 		return -1;
 
 	struct proc* currProc=myproc();
@@ -165,7 +165,7 @@ int sys_updateDirOwner(void)
 	char* path;
 	int uid, gid;
 
-	if(argstr(0, &path) < 0 || argint(1,&uid)<0 || argint(2,&gid)<0)
+	if(argstr(0, &path) < 0 || argint(1, &uid)<0 || argint(2, &gid)<0)
 		return -1;
 
 	struct inode* dp=namei(path);
@@ -351,11 +351,8 @@ create(char *path, short type, short major, short minor)
 	return ip;
 }
 
-int validatePermisions(char* path, int omode)
+/*int validatePermisions(char* path, int omode)
 {
-	struct inode* passwd=namei("/etc/passwd");
-	struct inode* group=namei("/etc/group");
-
 	int currUser=myproc()->uid;
 	char s[20];
 	struct inode* iParent=nameiparent(path, s);
@@ -369,21 +366,26 @@ int validatePermisions(char* path, int omode)
 	ilock(iChild);
 	int uidChild=iChild->uid;
 	int modeChild=iChild->mode;
-	int typeChild=iChild->type;
 	iunlock(iChild);
-
-	// TODO: Setuid bit?
-	if(iChild==passwd || iChild==group)
+	
+	int setuidBit=SETUID << 9;					// if file has setuidBit, it is has access
+	if(modeChild & setuidBit)
 		return 1;
 	
 	if(omode==O_RDONLY || omode==O_RDWR) {
-		int userRead=READ<<6;
-		if(!(modeParent & userRead) || uidParent != currUser)
-			return -1;
+		int userRead=READ << 6;					// does owner have access?
+		if((modeParent & userRead) && (uidParent == currUser))
+			return 1;
+
+		int otherRead=READ;						// do other members have access?
+		if(modeParent & otherRead)
+			return 1;
+
+		return -1;
 	}
 
 	return 1;
-}
+}*/
 
 int
 sys_open(void)
@@ -396,10 +398,10 @@ sys_open(void)
 	if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
 		return -1;
 
-	int currUser=myproc()->uid;
+	/*int currUser=myproc()->uid;
 	if(currUser!=ROOT)					// if user isn't root, validate permisions
 		if(validatePermisions(path, omode)<0)
-			return -1;
+			return -1;*/
 
 	begin_op();
 

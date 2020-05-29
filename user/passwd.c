@@ -67,7 +67,7 @@ main(int argc, char *argv[])
 	printf("\n");
 	retypePassword[strlen(retypePassword)-1]='\0';
 
-	if(strcmp(newPassword, retypePassword)!=0) {
+	if(strcmp(newPassword, retypePassword)) {
 		printf("Passwords do not match!\n");
 		exit();
 	}

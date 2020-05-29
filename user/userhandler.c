@@ -279,7 +279,7 @@ void addNewUser(struct user* newUser)
    freeUserList(userList);
 }
 
-/*int isUserInGroup(struct user* currUser, struct group* currGroup) 
+int isUserInGroup(struct user* currUser, struct group* currGroup) 
 {
    if(currGroup->userList==NULL)
       return 0;
@@ -293,7 +293,7 @@ void addNewUser(struct user* newUser)
    }
 
    return 0;
-}*/
+}
 
 void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
 {
@@ -302,7 +302,8 @@ void addUserToGroups(struct group* groupsToAddUser, struct user* currUser)
    struct group* tmpGroup=groupList;
    while(tmpGroup!=NULL && groupsToAddUser!=NULL) {
       if(!compareGroups(groupsToAddUser, tmpGroup)) {
-         tmpGroup->userList=addUserToListSorted(tmpGroup->userList, currUser);
+         if(!isUserInGroup(currUser, tmpGroup))
+            tmpGroup->userList=addUserToListSorted(tmpGroup->userList, currUser);
          groupsToAddUser=groupsToAddUser->next;
       }
 
@@ -360,7 +361,6 @@ void freeUserList(struct user* userList)
    }
 }
 
-// NEED TO ADD OTHER OPTIONS
 struct user* modifyUser(struct user* currUser, char* username, char* uidString, char* realname, char* homedir, char* m, char* groups, char* a)
 {
    struct user* modUser=(struct user*)malloc(sizeof(struct user));
