@@ -36,9 +36,9 @@ main(int argc, char *argv[])
 	clear();
 	printEtcFile("issue");
 	struct user* currUser=login();
-	printEtcFile("motd");
-	setuid(currUser->uid);
+	printEtcFile("motd");	
 	chdir(currUser->homedir);
+	setuid(currUser->uid);
 	exec("/bin/sh", argv);
 	exit();
 }

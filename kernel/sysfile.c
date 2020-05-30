@@ -307,11 +307,47 @@ bad:
 	return -1;
 }
 
+int validateWrite(char* path)
+{
+	int currUser=myproc()->uid;
+	char s[20];
+	struct inode* iParent=nameiparent(path, s);
+
+	if(!strncmp(s,"passwd", 6))						// replacment for setuid bit
+		return 1;
+	if(!strncmp(s,"group", 5))
+		return 1;
+
+	ilock(iParent);
+	int uidParent=iParent->uid;
+	int modeParent=iParent->mode;
+	iunlock(iParent);
+	
+	/*int setuidBit=SETUID << 9;					// if file has setuidBit, it has access
+	if(modeChild & setuidBit)
+		return 1;*/
+	
+	int userWrite=WRITE << 6;						// does owner have access?
+		if((modeParent & userWrite) && (uidParent == currUser))
+			return 1;
+
+	int otherWrite=WRITE;							// do other members have access?
+		if(modeParent & otherWrite)
+			return 1;
+
+	return -1;
+}
+
 static struct inode*
 create(char *path, short type, short major, short minor)
 {
 	struct inode *ip, *dp;
 	char name[DIRSIZ];
+
+	int currUser=myproc()->uid;
+	if(currUser!=ROOT)					// if user isn't root, validate permisions
+		if(validateWrite(path)<0)
+			return 0;
 
 	if((dp = nameiparent(path, name)) == 0)
 		return 0;
@@ -333,6 +369,7 @@ create(char *path, short type, short major, short minor)
 	ip->major = major;
 	ip->minor = minor;
 	ip->nlink = 1;
+	ip->mode = 0644;
 	iupdate(ip);
 
 	if(type == T_DIR){  // Create . and .. entries.
@@ -351,41 +388,36 @@ create(char *path, short type, short major, short minor)
 	return ip;
 }
 
-/*int validatePermisions(char* path, int omode)
+int validateRead(char* path)
 {
 	int currUser=myproc()->uid;
 	char s[20];
 	struct inode* iParent=nameiparent(path, s);
-	struct inode* iChild=namei(path);
+
+	if(!strncmp(s,"passwd", 6))						// replacment for setuid bit
+		return 1;
+	if(!strncmp(s,"group", 5))
+		return 1;
 
 	ilock(iParent);
 	int uidParent=iParent->uid;
 	int modeParent=iParent->mode;
 	iunlock(iParent);
-
-	ilock(iChild);
-	int uidChild=iChild->uid;
-	int modeChild=iChild->mode;
-	iunlock(iChild);
 	
-	int setuidBit=SETUID << 9;					// if file has setuidBit, it is has access
+	/*int setuidBit=SETUID << 9;					// if file has setuidBit, it has access
 	if(modeChild & setuidBit)
-		return 1;
+		return 1;*/
 	
-	if(omode==O_RDONLY || omode==O_RDWR) {
-		int userRead=READ << 6;					// does owner have access?
-		if((modeParent & userRead) && (uidParent == currUser))
-			return 1;
+	int userRead=READ << 6;							// does owner have access?
+	if((modeParent & userRead) && (uidParent == currUser))
+		return 1;
 
-		int otherRead=READ;						// do other members have access?
-		if(modeParent & otherRead)
-			return 1;
+	int otherRead=READ;								// do other members have access?
+	if(modeParent & otherRead)
+		return 1;
 
-		return -1;
-	}
-
-	return 1;
-}*/
+	return -1;
+}
 
 int
 sys_open(void)
@@ -398,16 +430,25 @@ sys_open(void)
 	if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
 		return -1;
 
-	/*int currUser=myproc()->uid;
-	if(currUser!=ROOT)					// if user isn't root, validate permisions
-		if(validatePermisions(path, omode)<0)
-			return -1;*/
+	int currUser=myproc()->uid;
+	if(currUser!=ROOT) {					// if user isn't root, validate permisions
+		if(omode==O_RDONLY || omode==O_RDWR) {
+			if(validateRead(path)<0)
+				return -1;
+		}
+
+		if(omode==O_WRONLY || omode==O_RDWR || omode==O_CREATE) {
+			if(validateWrite(path)<0)
+				return -1;
+		}
+
+	}					
+		
 
 	begin_op();
 
 	if(omode & O_CREATE){
 		ip = create(path, T_FILE, 0, 0);
-		ip->mode=0644;
 		if(ip == 0){
 			end_op();
 			return -1;
@@ -479,18 +520,47 @@ sys_mknod(void)
 	return 0;
 }
 
+int validateExecute(struct inode* ip)
+{
+	int currUser=myproc()->uid;
+	char s[20];
+
+	ilock(ip);
+	int uidChield=ip->uid;
+	int modeChield=ip->mode;
+	iunlock(ip);
+	
+	int userExecute=EXECUTE << 6;						// does owner have access?
+	if((modeChield & userExecute) && (uidChield == currUser))
+		return 1;
+
+	int otherExecute=EXECUTE;							// do other members have access?
+	if(modeChield & otherExecute)
+		return 1;
+
+	return -1;
+}
+
 int
 sys_chdir(void)
 {
 	char *path;
 	struct inode *ip;
 	struct proc *curproc = myproc();
-
+	
 	begin_op();
 	if(argstr(0, &path) < 0 || (ip = namei(path)) == 0){
 		end_op();
 		return -1;
 	}
+
+	int currUser=myproc()->uid;
+	if(currUser!=ROOT)					// if user isn't root, validate permisions
+		if(validateExecute(ip)<0) {
+			end_op();
+			return -1;
+		}
+
 	ilock(ip);
 	if(ip->type != T_DIR){
 		iunlockput(ip);
