@@ -10,9 +10,9 @@
 	arguments[1] -> value for uid
 	arguments[2] -> value for realname
 	arguments[3] -> value for homedir
-	arguments[4] -> value for m
+	arguments[4] -> value for m (move)
 	arguments[5] -> value for groups
-	arguments[6] -> value for a
+	arguments[6] -> value for a (append)
 	arguments[7] -> value for username
 */	
 
