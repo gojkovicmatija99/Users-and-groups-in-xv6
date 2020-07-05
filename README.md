@@ -24,10 +24,7 @@ Each file in the inode structure has one int that serves as a bitfield permissio
 
 # System calls
 
--getuid and getuid
--setuid
--modified stat
--chmod, chown
+getuid, getuid, setuid, modified stat, chmod, chown
 
 # User programs
 
