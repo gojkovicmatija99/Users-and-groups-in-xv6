@@ -9,9 +9,9 @@ The library of authentication routines should be implemented in a new source fil
 # New user and group files
 
 The file format /etc/passwd is as follows:
-username: password: UID: GID: Real_Name: homedir
+username: password: UID: GID: realname: homedir
 
-The format of the / etc / group file is as follows:
+The format of the /etc/group file is as follows:
 groupname: GID: user1, user2, user3
 
 A user with UID 0 is special. It is typically called root (also called superuser in the literature). Root is the system administrator and can read and write from any file regardless of permissions (it cannot execute a program without execute permissions, but it can set execute permissions). In addition, only processes belonging to the root can make some system calls such as setuid () and chown ().
