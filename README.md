@@ -22,6 +22,8 @@ Each file in the inode structure has one int that serves as a bitfield permissio
 
 0755 = -rwxr-xr-x
 
+Within one digit, the highest bit refers to the read right (r = 4), the middle bit refers to the write right (w = 2), and the lowest bit to the program execution right (x = 1). If it is a directory (the first - is d), r refers to listing the members of the directory, w to create new files, and x to access members.
+
 # System calls
 
 - getuid
