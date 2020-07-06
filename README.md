@@ -17,7 +17,9 @@ groupname: GID: user1, user2, user3
 A user with UID 0 is special. It is typically called root (also called superuser in the literature). Root is the system administrator and can read and write from any file regardless of permissions (it cannot execute a program without execute permissions, but it can set execute permissions). In addition, only processes belonging to the root can make some system calls such as setuid () and chown ().
 
 # Permsions
+Within one digit, the highest bit refers to the read right (r = 4), the middle bit refers to the write right (w = 2), and the lowest bit to the program execution right (x = 1).
 
+If it is a directory (the first - is d), r refers to listing the members of the directory, w to create new files, and x to access members.
 Each file in the inode structure has one int that serves as a bitfield permission that describes the users who have rights to that file. This parameter is often called file mode. In its higher bits we usually store additional special features of the file, in our case only the setuid bit. The file mode is usually illustrated in two ways: in octal form and in drwxrwxrwx form. Examples:
 
 0755 = -rwxr-xr-x
@@ -39,7 +41,7 @@ Within one digit, the highest bit refers to the read right (r = 4), the middle b
 **getty** user program is the first program that starts after system boot. It asks the user for username and password and validates if the user is in the system. To exit the sh process that getty starts in the user's home directory just press CTRL+D.
 
 ## passwd [username]
-Passwd user program is used to change the user's password. Ordinary user can only change it's own password, while root user can change password of all users.When the user wants to change it's own password, there is no need to input the username, while when the root user wants to change another users password, the username is mandatory. When changing passwords, the ordinary user needs to input the old password, while the root user can skip this step. The new password needs to be more than 6 characters long.
+**passwd** user program is used to change the user's password. Ordinary user can only change it's own password, while root user can change password of all users.When the user wants to change it's own password, there is no need to input the username, while when the root user wants to change another users password, the username is mandatory. When changing passwords, the ordinary user needs to input the old password, while the root user can skip this step. The new password needs to be more than 6 characters long.
 
 ## useradd [-d dir] [-u uid] [-c realname] username
 **useradd** user program adds new users to the system. The last argument is the user's username. With every new user, a group with the same name is added. This program doesn't set the user's password. 
