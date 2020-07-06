@@ -57,6 +57,6 @@ Passwd user program is used to change the user's password. Ordinary user can onl
 - -G option is used to add user to one or more groups. Groups are separated by commas. If the user is already in some groups besides it's own, it needs to be removed from those groups. If the option -a is used, then the user stays in his previous groups.
 
 ## chmod mode file...
-**chmod** user program modifies the file's permision.Mode is composed out of three parts. The first part is to whome the operation is refering to (a - all users, u - file owner, g - groups, o - other users). The second part is what operation is the command using (+ add the privilege, - removes the privilege). The last part is which priviledge is the command refering to (r - read, w - write, x - execute). Examples:
+**chmod** user program modifies the file's permision.Mode is composed out of three parts. The first part is to whome the operation is refering to (a - all users, u - file owner, g - groups, o - other users). The second part is what operation is the command using (+ add privilege, - remove privilege). The last part is which privilege is the command refering to (r - read, w - write, x - execute). Examples:
 - chmod a+x file1 - adds execute privilege to all users.
 - chmod o-w file1 file2 - removes write privilage from other users.
