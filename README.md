@@ -30,12 +30,18 @@ getuid, getuid, setuid, modified stat, chmod, chown
 
 **getty** user program is the first program that starts after system boot. It asks the user for username and password and validates if the user is in the system. To exit the sh process that getty starts in the user's home directory just press CTRL+D.
 
-**passwd** user program is used to change the user's password. Ordinary user can only change it's own password, while root user can change password of all users. The new password needs to be more than 6 characters long.
-Syntax: passwd [username]
+## passwd [username]
+Passwd user program is used to change the user's password. Ordinary user can only change it's own password, while root user can change password of all users.When the user wants to change it's own password, there is no need to input the username, while when the root user wants to change another users password, the username is mandatory. When changing passwords, the ordinary user needs to input the old password, while the root user can skip this step. The new password needs to be more than 6 characters long.
 
-**useradd** user program adds new users to the system. The last argument is the user's username. With every new user, a group with the same name is added. This program doesn't set the user's password. Syntax: useradd [-d dir] [-u uid] [-c realname] username
+## useradd [-d dir] [-u uid] [-c realname] username
+**useradd** user program adds new users to the system. The last argument is the user's username. With every new user, a group with the same name is added. This program doesn't set the user's password. 
+- -d option is used to set the new user's home directory. If this option is left out the default home directory is /home/[username]
+- -u option is used to set the user's uid. This value needs to be unique. Default value is the minumum available number that is greater than 1000
+- -c option is to set the user's realname
 
-**groupadd** user program adds new group to the system. Syntax: groupadd [-g gid] groupname
+## groupadd [-g gid] groupname
+**groupadd** user program adds new group to the system. The last argument is the group's groupname.
+- -g option is used to set the group's gid. This value needs to be unique. Default value is the minumum available number that is greater than 1000
 
 **usermod** user program modifies user's info. Syntax: usermod [-l login] [-u UID] [-c realname] [-d dir] [-m] [-G group…] [-a] username.
 
