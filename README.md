@@ -1,3 +1,5 @@
+![alt text](https://imgur.com/a/F0ri9oF)
+
 # Standard Unix systems
 
 Unix systems have user and user group concepts, and each file has a set of permissions (i.e., a mode) that describes which rights have which users and members of which user group over the file.
