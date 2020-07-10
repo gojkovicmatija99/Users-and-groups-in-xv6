@@ -1,5 +1,3 @@
-![alt text](https://github.com/gojkovicmatija99/Users-and-groups-in-xv6/blob/master/demo.png)
-
 # Standard Unix systems
 
 Unix systems have user and user group concepts, and each file has a set of permissions (i.e., a mode) that describes which rights have which users and members of which user group over the file.
@@ -68,3 +66,6 @@ Within one digit, the highest bit refers to the read right (r = 4), the middle b
 **chmod** user program modifies the file's permision.Mode is composed out of three parts. The first part is to whome the operation is refering to (a - all users, u - file owner, g - groups, o - other users). The second part is what operation is the command using (+ add privilege, - remove privilege). The last part is which privilege is the command refering to (r - read, w - write, x - execute). Examples:
 - chmod a+x file1 - adds execute privilege to all users.
 - chmod o-w file1 file2 - removes write privilage from other users.
+
+![alt text](https://github.com/gojkovicmatija99/Users-and-groups-in-xv6/blob/master/demo.png)
+
