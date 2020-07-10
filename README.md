@@ -1,4 +1,4 @@
-![alt text](https://imgur.com/a/F0ri9oF)
+![alt text](https://imgur.com/oA7jR18)
 
 # Standard Unix systems
 
