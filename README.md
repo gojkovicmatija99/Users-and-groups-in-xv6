@@ -1,4 +1,4 @@
-![alt text](https://imgur.com/oA7jR18)
+![alt text](https://github.com/gojkovicmatija99/Users-and-groups-in-xv6/blob/master/demo.png)
 
 # Standard Unix systems
 
